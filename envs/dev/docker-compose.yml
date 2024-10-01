@@ -1,0 +1,50 @@
+services:
+  flask:
+    build:
+      context: ../../
+      dockerfile: envs/shared/back/Dockerfile
+      target: dev
+    image: quick-start:dev
+    networks:
+      - network
+    volumes:
+      - ${FLASK_MOUNT_POINT:-../..}:/code
+    depends_on:
+      - postgres
+    env_file:
+      - ./back/.env
+    environment:
+      - FLASK_APP=main.py
+      - MIGRATION=1
+      - SET_ENV_TO_TEST=${SET_ENV_TO_TEST:-0}
+    ports:
+      - "5678:5678"
+      - "5001:5001"
+    container_name: quick_start
+
+  postgres:
+    build:
+      context: ../shared/postgres
+    image: quick-start-postgres:dev
+    ports:
+      - "5432:5432"
+    networks:
+      - network
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+    volumes:
+      - quickstart_database_dev:/var/lib/postgresql/data
+    container_name: quick_start_postgres
+
+
+volumes:
+  mongo_data_logs:
+  quickstart_database_dev:
+
+
+networks:
+  network:
