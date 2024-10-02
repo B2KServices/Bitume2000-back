@@ -1,5 +1,6 @@
 import logging
 import sys
+import threading
 from http import HTTPStatus
 
 import werkzeug
@@ -12,6 +13,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from managers.app_error_handler import AppErrorHandlers
 from managers.database_manager import DatabaseManager
+from managers.discord_manager.discord_manager import DiscordManager
 from managers.requests_debugger import RequestsDebugger
 from managers.swagger_manager import SwaggerInterface, SwaggerParams
 from marshmallow import ValidationError
@@ -36,6 +38,7 @@ setup_console_loggers_color()
 db_manager = DatabaseManager()
 db = db_manager.add_postgres_database('DB')
 jwt: JWTManager = JWTManager()
+bot = DiscordManager(config.DISCORD_BOT_TOKEN)
 
 
 def create_app():
@@ -72,6 +75,8 @@ def create_app():
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     app.logger.info(f'Using environment {config.ENV}')
+    discord_thread = threading.Thread(target=bot.run())
+    discord_thread.start()
 
     error_handler = AppErrorHandlers()
     error_handler.init_app(app)

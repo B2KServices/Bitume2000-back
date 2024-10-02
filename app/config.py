@@ -44,6 +44,7 @@ class BaseConfig:
         self.JWT_ACCESS_COOKIE_PATH: Final[str] = '/api/'
         self.JWT_REFRESH_COOKIE_PATH: Final[str] = '/token/refresh'
         self.JWT_COOKIE_CSRF_PROTECT: Final[bool] = False
+        self.DISCORD_BOT_TOKEN: Final[str] = os.getenv('DISCORD_BOT_TOKEN')
 
 
 class TestingConfig(BaseConfig):

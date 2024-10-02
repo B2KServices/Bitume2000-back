@@ -41,6 +41,10 @@ def login():
 
     return jwt_manager.login_with_cookies(user.id_user, UserSchema().dump(user)), HTTPStatus.OK
 
+@auth_blueprint.post(f'/{NAME}/login/discord')
+def login_discord():
+    data = request.get_json()
+
 
 @auth_blueprint.get(f'/{NAME}/logout')
 @jwt_required()
