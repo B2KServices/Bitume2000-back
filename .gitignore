@@ -164,3 +164,4 @@ uploads
 uploads/*
 !uploads/default.csv
 public
+/envs/dev/back/.env

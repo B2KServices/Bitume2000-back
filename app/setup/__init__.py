@@ -75,8 +75,7 @@ def create_app():
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.INFO)
     app.logger.info(f'Using environment {config.ENV}')
-    discord_thread = threading.Thread(target=bot.run())
-    discord_thread.start()
+
 
     error_handler = AppErrorHandlers()
     error_handler.init_app(app)
