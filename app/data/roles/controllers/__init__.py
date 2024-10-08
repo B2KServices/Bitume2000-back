@@ -1,0 +1,1 @@
+from .role_controller import role_blueprint

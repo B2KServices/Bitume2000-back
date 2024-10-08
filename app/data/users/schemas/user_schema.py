@@ -8,6 +8,7 @@ class UserSchema(BaseSchema):
     class Meta:
         model = UserModel
         load_instance = True
+        include_fk = True
 
     password = fields.String(required=True, load_only=True)
 
