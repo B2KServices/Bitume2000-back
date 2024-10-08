@@ -18,6 +18,8 @@ users_crud = CRUDHelper(UserModel, UserSchema)
 
 @users_blueprint.get(f'/{NAME}/update-discord')
 async def update_users():
+    if len(user_registry.get_all()) > 0:
+        return 'nope', HTTPStatus.BAD_REQUEST
     members = await bot.get_members_from_guild(382938797442334720)
     for member in members:
         member: Member = member
