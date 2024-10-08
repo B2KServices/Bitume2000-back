@@ -7,6 +7,6 @@ class UserModel(db.Model):
 
     id_user = Column(UUID, primary_key=True, unique=True, server_default=text('gen_random_uuid()'), nullable=False)
     username = Column(String, unique=True, nullable=False)
-    password = Column(String, nullable=False)
+    password = Column(String, nullable=True)
     id_discord = Column(String, unique=True, nullable=False)
-    password = Column(String, nullable=False)
+    avatar_url = Column(String, nullable=True)

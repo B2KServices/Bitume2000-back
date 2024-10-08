@@ -5,10 +5,10 @@ description = 'Quick-Start Backend'
 requires-python = '>=3.12'
 # sed-delimiter-start
 authors = [
-    { name = "Baptiste MOULIN", email = "baptiste.moulin@genee.tech" },
+    { name = "Guilheim CHATAING", email = "gchatain@mediapi.org" },
 ]
 maintainers = [
-    { name = "Baptiste MOULIN", email = "baptiste.moulin@genee.tech" },
+    { name = "Guilheim CHATAING", email = "gchatain@mediapi.org" },
 ]
 # sed-delimiter-end
 dependencies = [
@@ -54,9 +54,6 @@ classifiers = [
 production = [
     'uwsgi'
 ]
-
-[tool.quickStart]
-version = '1.4.0'
 
 [tool.setuptools]
 py-modules = []

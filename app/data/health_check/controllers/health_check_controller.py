@@ -1,3 +1,4 @@
+import asyncio
 from http import HTTPStatus
 
 from flask import Blueprint
@@ -36,7 +37,7 @@ async def do_health_check():
         A tuple containing a message indicating the database connection status
         and an HTTP status code.
     """
-    await bot.send_message('test')
+    bot.send_message('test', 1229694215798390881)
     try:
         db.session.execute(text('SELECT 1')).first()
         return DefaultResponse.success('Backend is up and database connection is successful.'), HTTPStatus.OK
