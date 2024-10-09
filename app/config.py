@@ -45,6 +45,7 @@ class BaseConfig:
         self.JWT_REFRESH_COOKIE_PATH: Final[str] = '/token/refresh'
         self.JWT_COOKIE_CSRF_PROTECT: Final[bool] = False
         self.DISCORD_BOT_TOKEN: Final[str] = os.getenv('DISCORD_BOT_TOKEN')
+        self.GUILD_ID: Final[str] = os.getenv('GUILD_ID')
 
 
 class TestingConfig(BaseConfig):
@@ -152,7 +153,7 @@ def load_config():
             return DevelopmentConfig()
         case _:
             raise Exception(
-                f"Incorrect value for environment variable ENV: '{os.getenv('ENV')}'. " f"Possible values: test, prod, dev (default: dev)"
+                f"Incorrect value for environment variable ENV: '{os.getenv('ENV')}'. " f"Possible values: test, local, deployed  (default: local)"
             )
 
 

@@ -122,7 +122,7 @@ class SwaggerInterface:
     def _rule_to_path(self, rule):
         return self.PATH_RE.sub(r'{\1}', rule.rule)
 
-    def register_function(self, target_function, target_blueprint):
+    def register_function(self, target_function, target_blueprint: Blueprint):
         endpoint = f'{target_blueprint.name}.{target_function.__name__.lower()}'
         target_function.__doc__ = None
         self.functions.append({'endpoint': endpoint, 'target_function': target_function, 'blueprint': target_blueprint})

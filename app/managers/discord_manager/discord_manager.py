@@ -4,7 +4,8 @@ import discord
 import asyncio
 from functools import wraps
 
-from discord import Member
+from discord import Member, Role
+from discord.ui import View, Button
 
 from utils.console_logger import get_console_logger
 
@@ -39,6 +40,10 @@ class DiscordManager:
         self.client.event(self.on_message)
         self.logger = get_console_logger(f'{self.client.user}')
 
+
+    def run(self):
+        self.client.run(self.token)
+
     async def on_ready(self):
         print(f'We have logged in as {self.client.user}')
 
@@ -51,21 +56,47 @@ class DiscordManager:
             await message.channel.send('Hello!')
 
     @_run_async()
-    async def send_message(self, message, id_channel: int | str):
+    async def send_message(self, message: str, id_channel: int | str, *, buttons: list[tuple[Button, callable]]):
         channel = self.client.get_channel(int(id_channel))
         if channel:
-            await channel.send(message)
+            view = View()
+
+            for button, func in buttons:
+                view.add_item(button)
+
+                # Define the callback for each button
+                @button.callback
+                async def button_callback(interaction, action=func):
+                    await action(interaction)
+
+            await channel.send(message, view=view)
         else:
             self.logger.error(f"Channel {id_channel} not found.")
 
+    @_run_async()
+    async def send_direct_message(self, message: str, id_user: int | str, *, buttons: list[tuple[Button, callable]]):
+        user = await self.client.fetch_user(id_user)
+        if user:
+            view = View()
+
+            for button, func in buttons:
+                view.add_item(button)
+
+                # Define the callback for each button
+                @button.callback
+                async def button_callback(interaction, action=func):
+                    await action(interaction)
+
+            await user.send(message, view=view)
+        else:
+            self.logger.error(f"User {id_user} not found.")
+
     async def get_members_from_guild(self, server_id) -> Sequence[Member]:
-        server = self.client.get_guild(server_id)
-        self.logger.debug(server)
+        server = self.client.get_guild(int(server_id))
         members = server.members
-        self.logger.debug(members)
         return members
 
-
-
-    def run(self):
-        self.client.run(self.token)
+    async def get_role_from_guild(self, server_id) -> Sequence[Role]:
+        server = self.client.get_guild(int(server_id))
+        roles = server.roles
+        return roles

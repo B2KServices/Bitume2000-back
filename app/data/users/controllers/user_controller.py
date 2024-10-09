@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from discord import Member
 
+from config import config
 from data.users.models import UserModel
 from data.users.schemas import UserSchema
 from flask import Blueprint
@@ -20,7 +21,7 @@ users_crud = CRUDHelper(UserModel, UserSchema)
 async def update_users():
     if len(user_registry.get_all()) > 0:
         return 'nope', HTTPStatus.BAD_REQUEST
-    members = await bot.get_members_from_guild(382938797442334720)
+    members = await bot.get_members_from_guild(config.GUILD_ID)
     for member in members:
         member: Member = member
         user = UserModel()
@@ -28,4 +29,8 @@ async def update_users():
         user.username = member.name
         user.avatar_url = member.avatar.url
         user_registry.create_one(user)
+    return users_crud.handle_get_all()
+
+@users_blueprint.get(f'/{NAME}')
+def get_all():
     return users_crud.handle_get_all()

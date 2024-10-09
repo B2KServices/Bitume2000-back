@@ -6,13 +6,15 @@ from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from managers.authentication_manager import JWTGenerationManager, PasswordAuthManager
 from managers.swagger_manager.doc_decorator import swagger
-from setup import docs
+from setup import docs, bot
+from utils.registry import SQLAlchemyRegistry
 
 NAME = 'auth'
 auth_blueprint = Blueprint(f'{NAME}_blueprint', __name__)
 
 auth_manager = PasswordAuthManager(UserModel)
 jwt_manager = JWTGenerationManager()
+user_registry = SQLAlchemyRegistry(UserModel)
 
 @auth_blueprint.get(f'/{NAME}/admin-token')
 def get_admin_token():
@@ -44,6 +46,11 @@ def login():
 @auth_blueprint.post(f'/{NAME}/login/discord')
 def login_discord():
     data = request.get_json()
+    username = data['username']
+    user: UserModel = user_registry.get_one_or_fail_where(username=username)
+    bot.send_direct_message("hey you", user.id_discord)
+
+
 
 
 @auth_blueprint.get(f'/{NAME}/logout')
