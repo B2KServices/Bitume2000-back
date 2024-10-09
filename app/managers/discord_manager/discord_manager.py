@@ -64,7 +64,6 @@ class DiscordManager:
             for button, func in buttons:
                 view.add_item(button)
 
-                # Define the callback for each button
                 @button.callback
                 async def button_callback(interaction, action=func):
                     await action(interaction)
@@ -82,10 +81,10 @@ class DiscordManager:
             for button, func in buttons:
                 view.add_item(button)
 
-                # Define the callback for each button
                 @button.callback
                 async def button_callback(interaction, action=func):
-                    await action(interaction)
+                    result = await action(interaction)
+                    return result
 
             await user.send(message, view=view)
         else:

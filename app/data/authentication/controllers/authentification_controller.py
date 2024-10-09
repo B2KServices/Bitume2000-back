@@ -1,5 +1,8 @@
 from http import HTTPStatus
 
+from discord import Interaction, ButtonStyle
+from discord.ui import Button
+
 from data.authentication.schemas import LoginValidationSchema
 from data.users.models import UserModel
 from flask import Blueprint, request
@@ -8,6 +11,7 @@ from managers.authentication_manager import JWTGenerationManager, PasswordAuthMa
 from managers.swagger_manager.doc_decorator import swagger
 from setup import docs, bot
 from utils.registry import SQLAlchemyRegistry
+from utils.request_default_responses import DefaultResponse
 
 NAME = 'auth'
 auth_blueprint = Blueprint(f'{NAME}_blueprint', __name__)
@@ -44,11 +48,17 @@ def login():
     return jwt_manager.login_with_cookies(user.id_user, UserSchema().dump(user)), HTTPStatus.OK
 
 @auth_blueprint.post(f'/{NAME}/login/discord')
-def login_discord():
+async def login_discord():
+    async def approve_connection(interaction: Interaction):
+        await interaction.message.edit('la connexion a ete approuvee')
+        return True
     data = request.get_json()
     username = data['username']
     user: UserModel = user_registry.get_one_or_fail_where(username=username)
-    bot.send_direct_message("hey you", user.id_discord)
+    approve_button = Button(label="Approuver", style=ButtonStyle.primary)
+    buttons = [(approve_button, approve_connection)]
+    if await bot.send_direct_message(f"Bonjour {user.username} veuillez approuver la connexion, si ce n'est pas vous qui avez demandé à vous connecter, veuillez ignorer ce message", user.id_discord, buttons=buttons):
+        return DefaultResponse.success('La reponse a ete approuvee'), 200
 
 
 
