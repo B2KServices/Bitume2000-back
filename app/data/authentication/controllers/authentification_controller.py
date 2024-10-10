@@ -15,7 +15,6 @@ from managers.authentication_manager import JWTGenerationManager, PasswordAuthMa
 from managers.swagger_manager.doc_decorator import swagger
 from setup import docs, bot
 from utils.registry import SQLAlchemyRegistry
-from utils.request_default_responses import DefaultResponse
 
 NAME = 'auth'
 auth_blueprint = Blueprint(f'{NAME}_blueprint', __name__)
@@ -54,7 +53,7 @@ def login():
 @auth_blueprint.post(f'/{NAME}/login/discord')
 async def login_discord():
     data = request.get_json()
-    username = data['username']
+    username = data.get('username', None)
     try:
         user: UserModel = user_registry.get_one_or_fail_where(username=username)
     except BaseCustomError:
@@ -66,7 +65,8 @@ async def login_discord():
                                   buttons=[Button(label="Approuver", style=ButtonStyle.success, custom_id=f'auth_discord_{id_user}')])
     for i in range(20):
         if id_user not in bot.user_in_auth:
-            return DefaultResponse.success('La reponse a ete approuvee'), 200
+            from data.users.schemas import UserSchema
+            return jwt_manager.login_with_cookies(user.id_user, UserSchema().dump(user)), HTTPStatus.OK
         sleep(1)
     bot.user_in_auth.remove(id_user)
     raise UnauthorizedError
