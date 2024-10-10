@@ -4,7 +4,7 @@ import discord
 import asyncio
 from functools import wraps
 
-from discord import Member, Role
+from discord import Member, Role, Interaction, Message, ButtonStyle
 from discord.ui import View, Button
 
 from utils.console_logger import get_console_logger
@@ -38,8 +38,17 @@ class DiscordManager:
 
         self.client.event(self.on_ready)
         self.client.event(self.on_message)
+        self.client.event(self.on_interaction)
+        self.user_in_auth = []
         self.logger = get_console_logger(f'{self.client.user}')
 
+    async def on_interaction(self, interaction: discord.Interaction):
+        custom_id = interaction.data.get('custom_id')
+        if custom_id and custom_id.startswith('auth_discord_'):
+            id_user = custom_id.replace('auth_discord_', '')
+            if id_user in self.user_in_auth:
+                self.user_in_auth.remove(id_user)
+                await interaction.response.edit_message(content='Connexion approuvée', view=None)
 
     def run(self):
         self.client.run(self.token)
@@ -55,36 +64,27 @@ class DiscordManager:
         if message.content.startswith('$hello'):
             await message.channel.send('Hello!')
 
+
     @_run_async()
-    async def send_message(self, message: str, id_channel: int | str, *, buttons: list[tuple[Button, callable]]):
+    async def send_message(self, message: str, id_channel: int | str, *, buttons: list[Button]):
         channel = self.client.get_channel(int(id_channel))
         if channel:
             view = View()
 
-            for button, func in buttons:
+            for button in buttons:
                 view.add_item(button)
-
-                @button.callback
-                async def button_callback(interaction, action=func):
-                    await action(interaction)
 
             await channel.send(message, view=view)
         else:
             self.logger.error(f"Channel {id_channel} not found.")
 
     @_run_async()
-    async def send_direct_message(self, message: str, id_user: int | str, *, buttons: list[tuple[Button, callable]]):
+    async def send_direct_message(self, message: str, id_user: int | str, *, buttons: list[Button]):
         user = await self.client.fetch_user(id_user)
         if user:
             view = View()
-
-            for button, func in buttons:
+            for button in buttons:
                 view.add_item(button)
-
-                @button.callback
-                async def button_callback(interaction, action=func):
-                    result = await action(interaction)
-                    return result
 
             await user.send(message, view=view)
         else:
