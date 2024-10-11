@@ -40,7 +40,7 @@ class DiscordManager:
         self.client.event(self.on_message)
         self.client.event(self.on_interaction)
         self.user_in_auth = []
-        self.logger = get_console_logger(f'{self.client.user}')
+        self.logger = get_console_logger(f'bot_manager')
 
     async def on_interaction(self, interaction: discord.Interaction):
         custom_id = interaction.data.get('custom_id')
@@ -99,3 +99,44 @@ class DiscordManager:
         server = self.client.get_guild(int(server_id))
         roles = server.roles
         return roles
+
+    async def get_roles_from_member(self, server_id, id_member) -> Sequence[Role]:
+        server = self.client.get_guild(int(server_id))
+        self.logger.info(f"Server: {server}")
+
+        if server is None:
+            self.logger.error(f"Server with ID {server_id} not found")
+            return []
+
+        member = server.get_member(int(id_member))
+        self.logger.info(f"Member: {member}")
+
+        if member is None:
+            self.logger.error(f"Member with ID {id_member} not found in server {server_id}")
+            return []
+
+        roles = member.roles
+        self.logger.info(f"Roles: {roles}")
+        return roles
+
+    @_run_async()
+    async def create_role(self, server_id, name, hex_color):
+        server = self.client.get_guild(int(server_id))
+        role = await server.create_role(name=name, color=discord.Color(int(hex_color, 16)))
+        return role
+
+    @_run_async()
+    async def add_role_to_member(self, server_id, id_member, id_role):
+        server = self.client.get_guild(int(server_id))
+        member = server.get_member(int(id_member))
+        role = server.get_role(int(id_role))
+        await member.add_roles(role)
+
+
+    @_run_async()
+    async def remove_role_from_member(self, server_id, id_member, id_role):
+        server = self.client.get_guild(int(server_id))
+        member = server.get_member(int(id_member))
+        role = server.get_role(int(id_role))
+        await member.remove_roles(role)
+

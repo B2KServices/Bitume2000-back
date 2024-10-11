@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, UUID, text
 from sqlalchemy.orm import relationship
 
+from data.users.models.user_model import user_role
 from setup import db
 
 
@@ -13,3 +14,4 @@ class RoleModel(db.Model):
     id_role_category = Column(UUID, ForeignKey('role_category.id_role_category', ondelete='CASCADE'), nullable=False)
 
     role_category = relationship('RoleCategoryModel', back_populates='roles', lazy=True)
+    users = relationship('UserModel', secondary=user_role, back_populates='roles')

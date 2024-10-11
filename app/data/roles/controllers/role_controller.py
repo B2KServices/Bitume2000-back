@@ -3,6 +3,7 @@ from http import HTTPStatus
 from discord import Role
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from marshmallow import ValidationError
 from pygments.util import docstring_headline
 
 from config import config
@@ -13,6 +14,7 @@ from data.roles.schemas.role_request_schema import RoleRequestSchema
 from data.roles.schemas.role_schema import RoleSchema
 from data.users.controllers.user_controller import user_registry
 from data.users.models import UserModel
+from errors import BaseCustomError
 from managers.swagger_manager.doc_decorator import swagger
 from setup import bot, docs
 from utils.crud_helper import CRUDHelper
@@ -43,7 +45,7 @@ def create_role_category():
     data = request.get_json()
     return crud_category.handle_post(data)
 
-@role_blueprint.post(f'/{NAME}/role/request')
+@role_blueprint.post(f'/{NAME}/request')
 @jwt_required()
 async def request_role():
     id_user = get_jwt_identity()
@@ -53,6 +55,33 @@ async def request_role():
     role_request = request_role_registry.create_one(RoleRequestSchema().load(data))
     bot.send_message(f'{user.username} a fait la demande pour le role {role_request.name} pour la categorie {role_request.role_category.name}')
     return RoleRequestSchema().dump(role_request), HTTPStatus.OK
+
+
+@role_blueprint.post(f'/{NAME}/approve')
+@jwt_required()
+async def approve_role_request():
+    id_request = request.get_json().get('id_request', None)
+    if id_request:
+        role_request: RoleRequestModel = request_role_registry.get_one_by_id_or_fail(id_request)
+        user: UserModel = user_registry.get_one_by_id_or_fail(role_request.id_user)
+        user.approved_role_requests.append(role_request)
+        if role_request not in user.approved_role_requests:
+            user.approved_role_requests.append(role_request)
+            user = user_registry.update_one(user)
+        else:
+            raise BaseCustomError('Role request already approved')
+        if len(role_request.approved_users) >= 2:
+            role_discord = await bot.create_role(config.GUILD_ID, role_request.name, role_request.role_category.color)
+            role_model = RoleModel(
+                id_discord=role_discord.id,
+                name=role_request.name,
+                id_role_category=role_request.id_role_category
+            )
+            role_model = role_registry.create_one(role_model)
+            request_role_registry.delete_one_or_fail(role_request)
+            bot.send_message(f'Le role {role_request.name} a été créé pour la categorie {role_request.role_category.name}', config.ANNOUNCEMENT_CHANNEL_ID)
+            return RoleSchema().dump(role_model), HTTPStatus.OK
+        return RoleRequestSchema().dump(role_request), HTTPStatus.OK
 
 
 
