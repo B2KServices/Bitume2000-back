@@ -97,4 +97,4 @@ async def update_roles():
 
         user_registry.update_one(user)
 
-    return users_crud.handle_get_all(), HTTPStatus.OK
+    return users_crud.handle_get_all()

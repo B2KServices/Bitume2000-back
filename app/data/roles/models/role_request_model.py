@@ -15,4 +15,3 @@ class RoleRequestModel(db.Model):
 
     approved_users = relationship('UserModel', secondary=user_role_request , back_populates='role_requests', lazy=True)
     user = relationship('UserModel', back_populates='role_requests')
-    approved_users = relationship('UserModel', secondary=user_role_request, back_populates='approved_role_requests', lazy=True)
