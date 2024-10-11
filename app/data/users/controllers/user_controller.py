@@ -69,9 +69,9 @@ async def update_role():
     id_role = data.get('id_role', None)
     adding_role = data.get('adding_role', None)
     user = user_registry.get_one_by_id_or_fail(id_user)
-    if id_role:
+    if id_role or adding_role is not None:
         role = role_registry.get_one_by_id_or_fail(id_role)
-        if adding_role:
+        if adding_role is True:
             bot.add_role_to_member(config.GUILD_ID, user.id_discord, role.id_discord)
             user.roles.append(role)
         else:
