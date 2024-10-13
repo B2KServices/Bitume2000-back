@@ -1,0 +1,91 @@
+[project]
+name = 'quick-start-backend'
+version = '0.0.0'
+description = 'Quick-Start Backend'
+requires-python = '>=3.12'
+# sed-delimiter-start
+authors = [
+    { name = "Guilheim CHATAING", email = "gchatain@mediapi.org" },
+]
+maintainers = [
+    { name = "Guilheim CHATAING", email = "gchatain@mediapi.org" },
+]
+# sed-delimiter-end
+dependencies = [
+    'flask',
+    'flask[async]',
+    'flask-cors',
+    'requests',
+    'pytest',
+    'pytest-cov',
+    'python-dotenv',
+    'flask-apispec',
+    'apispec',
+    'apispec-webframeworks',
+    'apispec[marshmallow]',
+    'pymongo',
+    'flask-pymongo',
+    'psycopg2-binary',
+    'sqlalchemy',
+    'flask-sqlalchemy',
+    'marshmallow-sqlalchemy',
+    'bump-my-version',
+    'sphinx',
+    'sphinx_design',
+    'myst_parser',
+    'furo',
+    'sphinx_autopackagesummary',
+    'sphinx_sqlalchemy',
+    'sphinxcontrib-napoleon',
+    'flask_swagger_ui',
+    'flask_jwt_extended',
+    'bcrypt',
+    'discord.py',
+    'discord.py[voice]',
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+production = [
+    'uwsgi'
+]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.ruff]
+# Set the maximum line length to 140.
+line-length = 140
+
+[tool.ruff.lint]
+# See documentation: https://docs.astral.sh/ruff/rules/
+extend-select = [
+    "UP",
+    "E501",
+    "I",
+    "B",
+    "F",
+    "E",
+    "N",
+    "A",
+    "PL"
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.coverage.run]
+omit = [
+    "app/tests/*",
+    "app/data/health_check/*",
+]
