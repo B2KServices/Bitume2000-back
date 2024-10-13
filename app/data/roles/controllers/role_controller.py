@@ -50,10 +50,10 @@ def create_role_category():
 async def request_role():
     id_user = get_jwt_identity()
     data = request.get_json()
-    data['id_user'] = id_user
+    data['id_requester'] = id_user
     user: UserModel = user_registry.get_one_by_id_or_fail(id_user)
     role_request = request_role_registry.create_one(RoleRequestSchema().load(data))
-    bot.send_message(f'{user.username} a fait la demande pour le role {role_request.name} pour la categorie {role_request.role_category.name}')
+    bot.send_message(f'{user.username} a fait la demande pour le role {role_request.name} pour la categorie {role_request.role_category.name}', config.ADMIN_CHANNEL_ID)
     return RoleRequestSchema().dump(role_request), HTTPStatus.OK
 
 

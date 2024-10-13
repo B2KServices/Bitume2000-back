@@ -24,5 +24,5 @@ class UserModel(db.Model):
     avatar_url = Column(String, nullable=True)
 
     roles = relationship('RoleModel', secondary=user_role, back_populates='users')
-    role_requests = relationship('RoleRequestModel', back_populates='user', lazy=True)
+    role_requests = relationship('RoleRequestModel', back_populates='requester', lazy=True)
     approved_role_requests = relationship('RoleRequestModel', secondary=user_role_request, back_populates='approved_users', lazy=True)

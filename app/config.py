@@ -47,6 +47,7 @@ class BaseConfig:
         self.DISCORD_BOT_TOKEN: Final[str] = os.getenv('DISCORD_BOT_TOKEN')
         self.GUILD_ID: Final[str] = os.getenv('GUILD_ID')
         self.ANNOUNCEMENT_CHANNEL_ID: Final[str] = os.getenv('ANNOUNCEMENT_CHANNEL_ID')
+        self.ADMIN_CHANNEL_ID: Final[str] = os.getenv('ADMIN_CHANNEL_ID')
 
 
 class TestingConfig(BaseConfig):

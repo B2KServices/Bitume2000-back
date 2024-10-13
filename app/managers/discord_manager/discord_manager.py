@@ -66,7 +66,8 @@ class DiscordManager:
 
 
     @_run_async()
-    async def send_message(self, message: str, id_channel: int | str, *, buttons: list[Button]):
+    async def send_message(self, message: str, id_channel: int | str, *, buttons: list[Button] | None = None):
+        buttons = buttons if buttons else []
         channel = self.client.get_channel(int(id_channel))
         if channel:
             view = View()

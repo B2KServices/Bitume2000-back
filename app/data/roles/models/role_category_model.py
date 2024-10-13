@@ -12,3 +12,4 @@ class RoleCategoryModel(db.Model):
 
 
     roles = relationship('RoleModel', back_populates='role_category', lazy=True)
+    role_requests = relationship('RoleRequestModel', back_populates='role_category', lazy=True)

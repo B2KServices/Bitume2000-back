@@ -10,8 +10,9 @@ class RoleRequestModel(db.Model):
 
     id_request_role = Column(UUID, primary_key=True, unique=True, server_default=text('gen_random_uuid()'), nullable=False)
     name = Column(String, nullable=False)
-    id_user = Column(UUID, ForeignKey('user.id_user', ondelete='CASCADE'), nullable=False)
+    id_requester = Column(UUID, ForeignKey('user.id_user', ondelete='CASCADE'), nullable=False)
     id_role_category = Column(UUID, ForeignKey('role_category.id_role_category', ondelete='CASCADE'), nullable=False)
 
     approved_users = relationship('UserModel', secondary=user_role_request , back_populates='role_requests', lazy=True)
-    user = relationship('UserModel', back_populates='role_requests')
+    requester = relationship('UserModel', back_populates='role_requests')
+    role_category = relationship('RoleCategoryModel', back_populates='role_requests')
