@@ -1,10 +1,9 @@
-import asyncio
 from http import HTTPStatus
 
 from flask import Blueprint
 from managers.swagger_manager.doc_decorator import swagger
 from marshmallow import fields
-from setup import db, docs, bot
+from setup import bot, db, docs
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from utils.request_default_responses import DefaultResponse

@@ -1,17 +1,14 @@
 from http import HTTPStatus
 
-from discord import Member
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from marshmallow import ValidationError
-
-from config import config, BaseConfig
+from config import config
 from data.roles.models import RoleModel
 from data.roles.schemas import RoleSchema
 from data.users.models import UserModel
 from data.users.schemas import UserSchema
-from flask import Blueprint, request
-
 from errors import BaseCustomError
+from flask import Blueprint, request
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from marshmallow import ValidationError
 from setup import bot
 from utils.crud_helper import CRUDHelper
 from utils.registry import SQLAlchemyRegistry
@@ -30,7 +27,6 @@ async def update_users():
         return 'nope', HTTPStatus.BAD_REQUEST
     members = await bot.get_members_from_guild(config.GUILD_ID)
     for member in members:
-        member: Member = member
         user = UserModel()
         user.id_discord = member.id
         user.username = member.name
@@ -38,9 +34,11 @@ async def update_users():
         user_registry.create_one(user)
     return users_crud.handle_get_all()
 
+
 @users_blueprint.get(f'/{NAME}')
 def get_all():
     return users_crud.handle_get_all()
+
 
 @users_blueprint.get(f'/{NAME}/me')
 @jwt_required()
@@ -48,11 +46,13 @@ def get_me():
     id_user = get_jwt_identity()
     return users_crud.handle_get(id_user)
 
+
 @users_blueprint.patch(f'/{NAME}/me')
 @jwt_required()
 def update_user(id_user):
     data = request.get_json()
     return users_crud.handle_patch(id_user, data)
+
 
 @users_blueprint.get(f'/{NAME}/me/roles')
 @jwt_required()
@@ -60,6 +60,7 @@ def get_roles():
     id_user = get_jwt_identity()
     user: UserModel = user_registry.get_one_by_id_or_fail(id_user)
     return RoleSchema(many=True).dump(user.roles), HTTPStatus.OK
+
 
 @users_blueprint.post(f'/{NAME}/me/roles')
 @jwt_required()
@@ -81,17 +82,17 @@ async def update_role():
         return RoleSchema(many=True).dump(user.roles), HTTPStatus.OK
     raise ValidationError('missing id_role or adding_role')
 
+
 @users_blueprint.get(f'/{NAME}/update-role')
 async def update_roles():
     users = user_registry.get_all()
     for user in users:
-        user: UserModel = user
         id_discord = user.id_discord
         roles = await bot.get_roles_from_member(config.GUILD_ID, id_discord)
         for role in roles:
             try:
-                role: RoleModel = role_registry.get_one_or_fail_where(id_discord=str(role.id))
-                user.roles.append(role)
+                role_instance: RoleModel = role_registry.get_one_or_fail_where(id_discord=str(role.id))
+                user.roles.append(role_instance)
             except BaseCustomError:
                 pass
 

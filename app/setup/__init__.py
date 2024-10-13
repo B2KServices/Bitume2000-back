@@ -1,6 +1,5 @@
 import logging
 import sys
-import threading
 from http import HTTPStatus
 
 import werkzeug
@@ -76,7 +75,6 @@ def create_app():
     app.logger.setLevel(logging.INFO)
     app.logger.info(f'Using environment {config.ENV}')
 
-
     error_handler = AppErrorHandlers()
     error_handler.init_app(app)
     error_handler.register(BaseCustomError, HTTPStatus.BAD_REQUEST)
@@ -112,6 +110,5 @@ def create_app():
     if config.ENV == 'local':
         with app.app_context():
             db.create_all()
-
 
     return app

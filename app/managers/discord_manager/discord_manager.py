@@ -1,12 +1,10 @@
-from collections.abc import Sequence
-
-import discord
 import asyncio
+from collections.abc import Sequence
 from functools import wraps
 
-from discord import Member, Role, Interaction, Message, ButtonStyle
-from discord.ui import View, Button
-
+import discord
+from discord import Member, Role
+from discord.ui import Button, View
 from utils.console_logger import get_console_logger
 
 
@@ -26,8 +24,8 @@ def _run_async():
 
     return decorator
 
-class DiscordManager:
 
+class DiscordManager:
     def __init__(self, token):
         intents = discord.Intents.all()
         intents.message_content = True
@@ -40,7 +38,7 @@ class DiscordManager:
         self.client.event(self.on_message)
         self.client.event(self.on_interaction)
         self.user_in_auth = []
-        self.logger = get_console_logger(f'bot_manager')
+        self.logger = get_console_logger('bot_manager')
 
     async def on_interaction(self, interaction: discord.Interaction):
         custom_id = interaction.data.get('custom_id')
@@ -64,7 +62,6 @@ class DiscordManager:
         if message.content.startswith('$hello'):
             await message.channel.send('Hello!')
 
-
     @_run_async()
     async def send_message(self, message: str, id_channel: int | str, *, buttons: list[Button] | None = None):
         buttons = buttons if buttons else []
@@ -77,7 +74,7 @@ class DiscordManager:
 
             await channel.send(message, view=view)
         else:
-            self.logger.error(f"Channel {id_channel} not found.")
+            self.logger.error(f'Channel {id_channel} not found.')
 
     @_run_async()
     async def send_direct_message(self, message: str, id_user: int | str, *, buttons: list[Button]):
@@ -89,7 +86,7 @@ class DiscordManager:
 
             await user.send(message, view=view)
         else:
-            self.logger.error(f"User {id_user} not found.")
+            self.logger.error(f'User {id_user} not found.')
 
     async def get_members_from_guild(self, server_id) -> Sequence[Member]:
         server = self.client.get_guild(int(server_id))
@@ -103,21 +100,21 @@ class DiscordManager:
 
     async def get_roles_from_member(self, server_id, id_member) -> Sequence[Role]:
         server = self.client.get_guild(int(server_id))
-        self.logger.info(f"Server: {server}")
+        self.logger.info(f'Server: {server}')
 
         if server is None:
-            self.logger.error(f"Server with ID {server_id} not found")
+            self.logger.error(f'Server with ID {server_id} not found')
             return []
 
         member = server.get_member(int(id_member))
-        self.logger.info(f"Member: {member}")
+        self.logger.info(f'Member: {member}')
 
         if member is None:
-            self.logger.error(f"Member with ID {id_member} not found in server {server_id}")
+            self.logger.error(f'Member with ID {id_member} not found in server {server_id}')
             return []
 
         roles = member.roles
-        self.logger.info(f"Roles: {roles}")
+        self.logger.info(f'Roles: {roles}')
         return roles
 
     @_run_async()
@@ -133,11 +130,9 @@ class DiscordManager:
         role = server.get_role(int(id_role))
         await member.add_roles(role)
 
-
     @_run_async()
     async def remove_role_from_member(self, server_id, id_member, id_role):
         server = self.client.get_guild(int(server_id))
         member = server.get_member(int(id_member))
         role = server.get_role(int(id_role))
         await member.remove_roles(role)
-

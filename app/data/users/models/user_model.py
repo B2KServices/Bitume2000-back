@@ -1,18 +1,19 @@
-from sqlalchemy.orm import relationship
 from setup import db
-from sqlalchemy import UUID, Column, String, text, ForeignKey
+from sqlalchemy import UUID, Column, ForeignKey, String, text
+from sqlalchemy.orm import relationship
 
 user_role = db.Table(
     'user_role',
     Column('id_user', UUID, ForeignKey('user.id_user', ondelete='CASCADE'), primary_key=True),
-    Column('id_role', UUID, ForeignKey('role.id_role', ondelete='CASCADE'), primary_key=True)
+    Column('id_role', UUID, ForeignKey('role.id_role', ondelete='CASCADE'), primary_key=True),
 )
 
 user_role_request = db.Table(
     'user_role_request',
     Column('id_user', UUID, ForeignKey('user.id_user', ondelete='CASCADE'), primary_key=True),
-    Column('id_request_role', UUID, ForeignKey('role_request.id_request_role', ondelete='CASCADE'), primary_key=True)
+    Column('id_request_role', UUID, ForeignKey('role_request.id_request_role', ondelete='CASCADE'), primary_key=True),
 )
+
 
 class UserModel(db.Model):
     __tablename__ = 'user'

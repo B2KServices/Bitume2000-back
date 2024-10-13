@@ -1,7 +1,6 @@
-from marshmallow import fields
-
 from data.roles.models import RoleCategoryModel
 from data.roles.schemas import RoleSchema
+from marshmallow import fields
 from utils.marshmallow_utils import BaseSchema
 
 

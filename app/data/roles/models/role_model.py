@@ -1,8 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, UUID, text
-from sqlalchemy.orm import relationship
-
 from data.users.models.user_model import user_role
 from setup import db
+from sqlalchemy import UUID, Column, ForeignKey, String, text
+from sqlalchemy.orm import relationship
 
 
 class RoleModel(db.Model):

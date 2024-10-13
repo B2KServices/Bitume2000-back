@@ -155,7 +155,8 @@ def load_config():
             return DevelopmentConfig()
         case _:
             raise Exception(
-                f"Incorrect value for environment variable ENV: '{os.getenv('ENV')}'. " f"Possible values: test, local, deployed  (default: local)"
+                f"Incorrect value for environment variable ENV: '{os.getenv('ENV')}'. "
+                f"Possible values: test, local, deployed  (default: local)"
             )
 
 
