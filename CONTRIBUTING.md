@@ -513,6 +513,79 @@ Regarder aussi:
 - [data_key](https://marshmallow.readthedocs.io/en/stable/quickstart.html#specifying-serialization-deserialization-keys)
   pour changer le nom d'un field du dictionnaire en un autre nom dans l'objet
 
+
+## Migrations
+
+### À quoi ça sert ?
+
+Après des changements apportés au code de l'ORM (SQLAlchemy), il est très probable que le schema et le contenu de la
+base de donnée doive changer (ex. ajout de colonne dans une table)\
+
+- Apres la release **R**, la base de données en production est dans un état **BDD(R)**
+- Au moment de la release suivante **R'**, la migration consiste a effectuer les requetes SQL permettant de passer de *
+  *BDD(R)** à **BDD(R')**
+
+### Fonctionnement des migrations
+
+Ce projet utilise le package **Flask-Migrate** pour ***faciliter*** les migrations. Plus exactement, **Flask-Migrate**
+configure **Alembic**, l'outil de migration de SQLAlchemy, pour marcher correctement avec Flask et Flask-SQLAlchemy\
+La procédure ***n'est pas entièrement automatisable*** car il y a une limite aux changements que cet outil peut inférer:
+
+- Alembic n'est pas capable de détecter les changements de noms de table ou de colonnes
+- Considérer également le cas où l'on crée une nouvelle colonne _non nullable_: comment Alembic pourrait savoir comment
+  la remplir dans la base de donnée actuelle ?
+
+**Flask-Migrate** fonctionne ainsi:
+
+- Une migration est un fichier contenant des operation de creation/modification de la base de données (packages *
+  *alembic** et **sqlalchemy**) qui génèrent les requêtes SQL
+- Un dossier dédié `migrations` contient la configuration des migrations et l'historique de toutes les migrations
+  effectuées (`migrations/versions/*.py`)
+- Pour une nouvelle migration, **Flask-Migrate** ***tente*** de génerer le code automatiquement en comparant l'état
+  actuel du code et celui de la base de données. Il arrive souvent que cela suffise mais ce n'est pas garanti.
+- On verifie le script et le complète éventuellement
+- Quand une migration est effectuée, son _revision id_ est automatiquement stocké dans la BDD dans une table
+  dédiée `alembic_version`. Cela permet a **Flask-Migrate** de savoir quelles sont les migrations à appliquer
+
+### Utilisation de Flask-Migrate
+
+Depuis le host de la BDD:
+
+- Effectuer un dump de la base de données (adapter la commande aux besoins)\
+  `pg_dump -U DB_USER DB_NAME > dump.sql`
+  ou `docker exec DOCKER_NAME pg_dump -U DB_USER DB_NAME > dump.sql`
+- _(En cas de problemes dans la suite)_ Restaurer la BDD a l'aide du dump\
+  `psql -U postgres -d db_dev < file.dumb ` ou `docker exec -i DOCKER_NAME psql -U DB_USER DB_NAME < dump.sql`
+
+Depuis le host de l'un des backends:
+
+- Pull la nouvelle release\
+  `git pull`
+- Lancer l'application:\
+  `cd envs/prod && docker compose up flask --build`
+- Lancer bash dans le docker:\
+  `docker exec -it NOM_DU_SERVICE bash`
+
+Les commandes suivantes sont a lancer dans l'interpréteur bash dans le conteneur.
+
+- _(La premiere fois uniquement)_ Créer le dossier `migrations`:\
+  `flask db init`
+- _(Optionnel)_ Vérifier que la prochaine migration peut être faite:\
+  `flask db check`
+- Générer le script de la migration:\
+  `flask db migrate -m TAG_DE_LA_RERELEASE`\
+  Le tag de release est optionnel mais recommandé, car cela permet de garder trace de la correspondance entre les
+  releases et les migrations
+- ***Vérifier*** que le script fait bien toutes les bonnes opérations, et le modifier si besoin
+- Appliquer la migration:\
+  `flask db upgrade`
+
+Commandes utiles:
+
+- `flask db current`: Affiche le _revision id_ actuel de la BDD
+- `flask db stamp <revision>`: Change le _revision id_ actuel de la BDD (Attention à ne pas l'utiliser n'importe
+  comment !)
+- `flask db history`: Affiche, dans l'order chronologique, toutes les migrations effectuées
 ## Classes utilitaires
 
 ### Services

@@ -17,6 +17,7 @@ from managers.requests_debugger import RequestsDebugger
 from managers.swagger_manager import SwaggerInterface, SwaggerParams
 from marshmallow import ValidationError
 from utils.console_logger import setup_console_loggers_color
+from flask_migrate import Migrate
 
 PARAMS = SwaggerParams(
     title='Genee Portail API',
@@ -35,6 +36,7 @@ PARAMS = SwaggerParams(
 docs: SwaggerInterface = SwaggerInterface(PARAMS)
 setup_console_loggers_color()
 db_manager = DatabaseManager()
+migrate = Migrate()
 db = db_manager.add_postgres_database('DB')
 jwt: JWTManager = JWTManager()
 bot = DiscordManager(config.DISCORD_BOT_TOKEN)
@@ -75,6 +77,8 @@ def create_app():
     app.logger.setLevel(logging.INFO)
     app.logger.info(f'Using environment {config.ENV}')
 
+    if config.MIGRATION == "1":
+        migrate.init_app(app, db)
     error_handler = AppErrorHandlers()
     error_handler.init_app(app)
     error_handler.register(BaseCustomError, HTTPStatus.BAD_REQUEST)

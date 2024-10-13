@@ -1,6 +1,6 @@
 [project]
 name = 'quick-start-backend'
-version = '0.0.0'
+version = '1.1.0'
 description = 'Quick-Start Backend'
 requires-python = '>=3.12'
 # sed-delimiter-start
@@ -13,6 +13,7 @@ maintainers = [
 # sed-delimiter-end
 dependencies = [
     'flask',
+    'flask-migrate',
     'flask[async]',
     'flask-cors',
     'requests',
