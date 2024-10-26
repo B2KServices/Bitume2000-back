@@ -1,7 +1,7 @@
 [project]
-name = 'quick-start-backend'
+name = 'bitumeback'
 version = '1.1.0'
-description = 'Quick-Start Backend'
+description = 'Bitume Api'
 requires-python = '>=3.12'
 # sed-delimiter-start
 authors = [
