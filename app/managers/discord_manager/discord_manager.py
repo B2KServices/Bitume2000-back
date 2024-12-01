@@ -136,3 +136,7 @@ class DiscordManager:
         member = server.get_member(int(id_member))
         role = server.get_role(int(id_role))
         await member.remove_roles(role)
+
+    @_run_async()
+    async def change_presence(self, activity):
+        await self.client.change_presence(activity=discord.Game(name=activity))

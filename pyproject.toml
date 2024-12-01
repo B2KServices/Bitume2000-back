@@ -1,7 +1,7 @@
 [project]
-name = 'quick-start-backend'
-version = '1.1.0'
-description = 'Quick-Start Backend'
+name = 'bitumeback'
+version = '1.2.0'
+description = 'Bitume Api'
 requires-python = '>=3.12'
 # sed-delimiter-start
 authors = [
@@ -43,6 +43,9 @@ dependencies = [
     'bcrypt',
     'discord.py',
     'discord.py[voice]',
+    'APScheduler',
+    'pytz',
+    'babel'
 ]
 
 classifiers = [

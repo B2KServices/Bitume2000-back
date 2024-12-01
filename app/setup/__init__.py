@@ -1,8 +1,12 @@
 import logging
 import sys
+from datetime import datetime
 from http import HTTPStatus
 
+import pytz
 import werkzeug
+from apscheduler.schedulers.background import BackgroundScheduler
+from babel.dates import format_datetime
 from config import config
 from errors import BaseCustomError
 from errors.authentication_errors import ForbiddenError, UnauthorizedError
@@ -10,6 +14,7 @@ from errors.database_errors import EntityNotFoundError
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from managers.app_error_handler import AppErrorHandlers
 from managers.database_manager import DatabaseManager
 from managers.discord_manager.discord_manager import DiscordManager
@@ -17,7 +22,6 @@ from managers.requests_debugger import RequestsDebugger
 from managers.swagger_manager import SwaggerInterface, SwaggerParams
 from marshmallow import ValidationError
 from utils.console_logger import setup_console_loggers_color
-from flask_migrate import Migrate
 
 PARAMS = SwaggerParams(
     title='Genee Portail API',
@@ -40,6 +44,12 @@ migrate = Migrate()
 db = db_manager.add_postgres_database('DB')
 jwt: JWTManager = JWTManager()
 bot = DiscordManager(config.DISCORD_BOT_TOKEN)
+scheduler = BackgroundScheduler(timezone=pytz.timezone('Europe/Paris'))
+
+
+def day_event():
+    # Formater la date en français
+    bot.send_message(f"# {format_datetime(datetime.now(tz=pytz.timezone('Europe/Paris')), "d MMMM", locale='fr')}", 915687763213434960)
 
 
 def create_app():
@@ -77,7 +87,10 @@ def create_app():
     app.logger.setLevel(logging.INFO)
     app.logger.info(f'Using environment {config.ENV}')
 
-    if config.MIGRATION == "1":
+    scheduler.add_job(day_event, 'cron', hour=0, minute=1)
+    scheduler.start()
+
+    if config.MIGRATION == '1':
         migrate.init_app(app, db)
     error_handler = AppErrorHandlers()
     error_handler.init_app(app)
