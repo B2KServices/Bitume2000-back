@@ -1,6 +1,6 @@
 [project]
 name = 'bitumeback'
-version = '1.1.1'
+version = '1.2.0'
 description = 'Bitume Api'
 requires-python = '>=3.12'
 # sed-delimiter-start
