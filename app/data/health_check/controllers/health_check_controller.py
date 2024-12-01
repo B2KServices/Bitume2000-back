@@ -3,7 +3,7 @@ from http import HTTPStatus
 from flask import Blueprint
 from managers.swagger_manager.doc_decorator import swagger
 from marshmallow import fields
-from setup import bot, db, docs
+from setup import db, docs
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from utils.request_default_responses import DefaultResponse
@@ -36,7 +36,7 @@ async def do_health_check():
         A tuple containing a message indicating the database connection status
         and an HTTP status code.
     """
-   # bot.send_message('test', 1229694215798390881)
+    # bot.send_message('test', 1229694215798390881)
     try:
         db.session.execute(text('SELECT 1')).first()
         return DefaultResponse.success('Backend is up and database connection is successful.'), HTTPStatus.OK

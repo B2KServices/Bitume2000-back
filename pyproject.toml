@@ -43,6 +43,9 @@ dependencies = [
     'bcrypt',
     'discord.py',
     'discord.py[voice]',
+    'APScheduler',
+    'pytz',
+    'babel'
 ]
 
 classifiers = [
