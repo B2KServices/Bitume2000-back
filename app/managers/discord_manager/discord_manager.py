@@ -117,6 +117,16 @@ class DiscordManager:
         self.logger.info(f'Roles: {roles}')
         return roles
 
+    async def get_categorie_from_guild(self, id_server, id_category):
+        server = self.client.get_guild(int(id_server))
+        categories = server.categories
+        self.logger.info(f'Server: {server}')
+        self.logger.info(f'Categories: {categories}')
+        for category in categories:
+            if category.id == id_category:
+                return category
+        return None
+
     @_run_async()
     async def create_role(self, server_id, name, hex_color):
         server = self.client.get_guild(int(server_id))
@@ -136,6 +146,12 @@ class DiscordManager:
         member = server.get_member(int(id_member))
         role = server.get_role(int(id_role))
         await member.remove_roles(role)
+
+    @_run_async()
+    async def set_channel_on_category(self, server_id, channel_id, id_category):
+        server = self.client.get_guild(int(server_id))
+        channel = server.get_channel(int(channel_id))
+        category = self.get_categorie_from_guild(int(id_category))
 
     @_run_async()
     async def change_presence(self, activity):

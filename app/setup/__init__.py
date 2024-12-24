@@ -49,7 +49,12 @@ scheduler = BackgroundScheduler(timezone=pytz.timezone('Europe/Paris'))
 
 def day_event():
     # Formater la date en français
-    bot.send_message(f"# {format_datetime(datetime.now(tz=pytz.timezone('Europe/Paris')), "d MMMM", locale='fr')}", 915687763213434960)
+    today = datetime.now(tz=pytz.timezone('Europe/Paris'))
+    if today.month == 12:
+        if today.day <= 24:
+            bot.send_message(f"# {format_datetime(today, "d MMMM", locale='fr')}", 915687763213434960)
+        elif today.day == 25:
+            bot.send_message(f"# Joyeux noël !!")
 
 
 def create_app():
