@@ -10,7 +10,7 @@ from utils.console_logger import get_console_logger
 
 def _run_async():
     """
-    A decorator to run a coroutine in the Discord event loop.
+    A decorator to run a coroutine in the Discord event loop and return its result.
     """
 
     def decorator(func):
@@ -18,8 +18,11 @@ def _run_async():
         def wrapper(*args, **kwargs):
             self = args[0]  # Assuming the first argument is `self`
             coroutine = func(*args, **kwargs)
-            asyncio.run_coroutine_threadsafe(coroutine, self.client.loop)
-
+            future = asyncio.run_coroutine_threadsafe(coroutine, self.client.loop)
+            try:
+                return future.result()
+            except Exception as e:
+                raise RuntimeError(f"Error executing coroutine {func.__name__}: {e}")
         return wrapper
 
     return decorator

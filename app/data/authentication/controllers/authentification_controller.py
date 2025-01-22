@@ -58,6 +58,7 @@ async def login_discord():
     try:
         user: UserModel = user_registry.get_one_or_fail_where(username=username)
     except BaseCustomError as err:
+        print(err, flush=True)
         raise UnauthorizedError from err
     id_user = str(user.id_user)
     bot.user_in_auth.append(id_user)

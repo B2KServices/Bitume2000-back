@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from pathlib import Path
 
 from config import config
 from data.roles.models import RoleModel
@@ -49,7 +50,8 @@ def get_me():
 
 @users_blueprint.patch(f'/{NAME}/me')
 @jwt_required()
-def update_user(id_user):
+def update_user():
+    id_user = get_jwt_identity()
     data = request.get_json()
     return users_crud.handle_patch(id_user, data)
 
@@ -99,3 +101,16 @@ async def update_roles():
         user_registry.update_one(user)
 
     return users_crud.handle_get_all()
+
+
+@users_blueprint.post(f'/{NAME}/me/update-avatar')
+@jwt_required()
+async def update_image():
+    id_user = get_jwt_identity()
+    file = request.files['file']
+    path = f'images/profil/{id_user}{Path(file.filename).suffix}'
+    file.save(f'cdn/{path}')
+    user: UserModel = user_registry.get_one_by_id_or_fail(id_user)
+    user.avatar_url = f'https://cdn.bitume2000.fr/{path}'
+    new_user = user_registry.update_one(user)
+    return UserSchema().dump(new_user), HTTPStatus.OK

@@ -1,5 +1,5 @@
 from setup import db
-from sqlalchemy import UUID, Column, ForeignKey, String, text
+from sqlalchemy import UUID, Column, ForeignKey, String, text, Integer
 from sqlalchemy.orm import relationship
 
 user_role = db.Table(
@@ -23,6 +23,7 @@ class UserModel(db.Model):
     password = Column(String, nullable=True)
     id_discord = Column(String, unique=True, nullable=False)
     avatar_url = Column(String, nullable=True)
+    permission_level = Column(Integer, nullable=True, server_default=text('0'))
 
     roles = relationship('RoleModel', secondary=user_role, back_populates='users')
     role_requests = relationship('RoleRequestModel', back_populates='requester', lazy=True)

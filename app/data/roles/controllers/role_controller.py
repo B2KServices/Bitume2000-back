@@ -20,12 +20,17 @@ NAME = 'roles'
 role_blueprint = Blueprint(NAME, __name__)
 crud_role = CRUDHelper(RoleModel, RoleSchema)
 request_role_registry = SQLAlchemyRegistry(RoleRequestModel)
+request_role_crud = CRUDHelper(RoleRequestModel, RoleRequestSchema)
 crud_category = CRUDHelper(RoleCategoryModel, RoleCategorySchema)
 role_registry = SQLAlchemyRegistry(RoleModel)
 category_registry = SQLAlchemyRegistry(RoleCategoryModel)
 user_registry = SQLAlchemyRegistry(UserModel)
 
 APPROVE_REQUIRED = 2
+
+@role_blueprint.get(f'/{NAME}/requests')
+def get_roles_requests():
+    return request_role_crud.handle_get_all()
 
 
 @role_blueprint.get(f'/{NAME}')
@@ -45,7 +50,7 @@ def create_role_category():
     return crud_category.handle_post(data)
 
 
-@role_blueprint.post(f'/{NAME}/request')
+@role_blueprint.post(f'/{NAME}/requests')
 @jwt_required()
 async def request_role():
     id_user = get_jwt_identity()
@@ -66,20 +71,19 @@ async def approve_role_request():
     id_request = request.get_json().get('id_request', None)
     if id_request:
         role_request: RoleRequestModel = request_role_registry.get_one_by_id_or_fail(id_request)
-        user: UserModel = user_registry.get_one_by_id_or_fail(role_request.id_user)
-        user.approved_role_requests.append(role_request)
+        user: UserModel = user_registry.get_one_by_id_or_fail(role_request.id_requester)
         if role_request not in user.approved_role_requests:
             user.approved_role_requests.append(role_request)
             user = user_registry.update_one(user)
         else:
             raise BaseCustomError('Role request already approved')
         if len(role_request.approved_users) >= APPROVE_REQUIRED:
-            role_discord = await bot.create_role(config.GUILD_ID, role_request.name, role_request.role_category.color)
+            role_discord = bot.create_role(config.GUILD_ID, role_request.name, role_request.role_category.color[1:])
             role_model = RoleModel(id_discord=role_discord.id, name=role_request.name, id_role_category=role_request.id_role_category)
-            role_model = role_registry.create_one(role_model)
+            role_model: RoleModel = role_registry.create_one(role_model)
             request_role_registry.delete_one_or_fail(role_request)
             bot.send_message(
-                f'Le role {role_request.name} a été créé pour la categorie {role_request.role_category.name}',
+                f'Le role {role_model.name} a été créé pour la categorie {role_model.role_category.name}',
                 config.ANNOUNCEMENT_CHANNEL_ID,
             )
             return RoleSchema().dump(role_model), HTTPStatus.OK
@@ -88,28 +92,6 @@ async def approve_role_request():
 
 @role_blueprint.get(f'/{NAME}/categories')
 def get_role_categories():
-    return crud_category.handle_get_all()
-
-
-@role_blueprint.get(f'/{NAME}/categories/update-discord')
-def update_categories():
-    categories = {
-        'Position': '#4a8b29',
-        'IRL': '#00FF00',
-        'Autres': '#F1C232',
-        'Stratégie': '#9900FF',
-        'Réflexion': '#00FFFF',
-        'Combat': '#E91E1E',
-        'Party Games': '#FF9900',
-        'Survie/ Aventure': '#CCCCCC',
-        'Course': '#0161FF',
-        'FPS': '#00DE8C',
-    }
-    for key, value in categories.items():
-        category_model = RoleCategoryModel()
-        category_model.name = (key,)
-        category_model.color = value.lower()
-        category_registry.create_one(category_model)
     return crud_category.handle_get_all()
 
 
