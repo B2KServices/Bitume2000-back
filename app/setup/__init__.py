@@ -115,11 +115,13 @@ def create_app():
     from data.health_check.controllers import health_check_blueprint
     from data.roles.controllers import role_blueprint
     from data.users.controllers import users_blueprint
+    from data.discord.controllers import discord_blueprint
 
     app.register_blueprint(health_check_blueprint, url_prefix='')
     app.register_blueprint(auth_blueprint, url_prefix='/api')
     app.register_blueprint(users_blueprint, url_prefix='/api')
     app.register_blueprint(role_blueprint, url_prefix='/api')
+    app.register_blueprint(discord_blueprint, url_prefix='/api')
 
     docs.init_app(app)
 
