@@ -5,7 +5,7 @@ from collections.abc import Sequence
 from functools import wraps
 
 import discord
-from discord import Member, Role
+from discord import Member, Role, app_commands
 from discord.ui import Button, View
 from utils.console_logger import get_console_logger
 
@@ -37,6 +37,7 @@ class DiscordManager:
         intents.members = True
         intents.presences = True
         self.client = discord.Client(intents=intents)
+        self.tree = app_commands.CommandTree(self.client)  # Création du tree
         self.token = token
 
         self.client.event(self.on_ready)
@@ -44,6 +45,10 @@ class DiscordManager:
         self.client.event(self.on_interaction)
         self.user_in_auth = []
         self.logger = get_console_logger('bot_manager')
+
+    async def on_ready(self):
+        await self.tree.sync(guild=None)  # Synchronisation globale
+        print(f'We have logged in as {self.client.user}')
 
     async def on_interaction(self, interaction: discord.Interaction):
         custom_id = interaction.data.get('custom_id')
@@ -56,8 +61,21 @@ class DiscordManager:
     def run(self):
         self.client.run(self.token)
 
-    async def on_ready(self):
-        print(f'We have logged in as {self.client.user}')
+    @app_commands.command(name="players", description="Affiche le nombre de joueurs sur le serveur")
+    async def players(self, interaction: discord.Interaction):
+        response = requests.get("http://lyon.mediapi.org:5001/players")
+        data = json.loads(response.text)
+        if "players" not in data:
+            return
+        else:
+            await interaction.response.send_message(f"il y a {data["players"]} sur le serveur")
+        guild = interaction.guild
+        if guild is None:
+            await interaction.response.send_message("Cette commande doit être utilisée dans un serveur.", ephemeral=True)
+            return
+        nb_players = len(guild.members)
+        await interaction.response.send_message(f"Nombre de joueurs sur le serveur : {nb_players}")
+
 
     async def on_message(self, message):
         print('Message received!')
