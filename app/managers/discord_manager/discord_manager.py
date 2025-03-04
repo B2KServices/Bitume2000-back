@@ -1,8 +1,8 @@
 import asyncio
 import json
 import requests
-from collections.abc import Sequence
 from functools import wraps
+from collections.abc import Sequence
 
 import discord
 from discord import Member, Role, app_commands
@@ -25,6 +25,7 @@ def _run_async():
                 return future.result()
             except Exception as e:
                 raise RuntimeError(f"Error executing coroutine {func.__name__}: {e}")
+
         return wrapper
 
     return decorator
@@ -32,25 +33,25 @@ def _run_async():
 
 class DiscordManager:
     def __init__(self, token):
+        self.token = token
+        self.logger = get_console_logger('bot_manager')
+
         intents = discord.Intents.all()
         intents.message_content = True
-        intents.members = True
-        intents.presences = True
         self.client = discord.Client(intents=intents)
-        self.tree = app_commands.CommandTree(self.client)  # Création du tree
-        self.token = token
+        self.tree = app_commands.CommandTree(self.client)
 
         self.client.event(self.on_ready)
         self.client.event(self.on_message)
         self.client.event(self.on_interaction)
+
         self.user_in_auth = []
-        self.logger = get_console_logger('bot_manager')
 
     async def on_ready(self):
-        self.tree.clear_commands(guild=None)  # Efface les anciennes commandes
-        self.tree.add_command(self.players)  # Ajoute la commande
-        await self.tree.sync()  # Synchronise toutes les commandes
-        print(f'Commandes synchronisées pour {self.client.user}')
+        self.tree.clear_commands(guild=None)
+        self.tree.add_command(self.players)
+        await self.tree.sync()
+        self.logger.info(f'Commandes synchronisées pour {self.client.user}')
 
     async def on_interaction(self, interaction: discord.Interaction):
         custom_id = interaction.data.get('custom_id')
@@ -65,57 +66,49 @@ class DiscordManager:
 
     @app_commands.command(name="players", description="Affiche le nombre de joueurs sur le serveur")
     async def players(self, interaction: discord.Interaction):
-        response = requests.get("http://lyon.mediapi.org:5001/players")
-        data = json.loads(response.text)
-        if "players" not in data:
+        try:
+            response = requests.get("http://lyon.mediapi.org:5001/players")
+            response.raise_for_status()
+            data = response.json()
+            await interaction.response.send_message(f"Il y a {data.get('players', 0)} joueurs sur le serveur.")
+        except requests.RequestException as e:
+            self.logger.error(f"Erreur API: {e}")
             await interaction.response.send_message("Impossible de récupérer les joueurs.", ephemeral=True)
-            return
-
-        await interaction.response.send_message(f"Il y a {data['players']} joueurs sur le serveur.")
 
     async def on_message(self, message):
-        print('Message received!')
         if message.author == self.client.user:
             return
 
         if message.channel.id == 1342417055386960004:
-            payload = {
-                "author": str(message.author),
-                "message": message.content
-            }
+            payload = {"author": str(message.author), "message": message.content}
             try:
                 response = requests.post("http://lyon.mediapi.org:5001/chat", json=payload)
-                if response.status_code != 200:
-                    await message.channel.send(f"Erreur API: {response.status_code}")
+                response.raise_for_status()
             except requests.RequestException as e:
-                self.logger.error(f"Erreur lors de l'envoi du message à l'API: {e}")
+                self.logger.error(f"Erreur API: {e}")
                 await message.channel.send("Erreur lors de l'envoi du message à l'API.")
 
         if message.content.startswith('$hello'):
             await message.channel.send('Hello!')
 
     @_run_async()
-    async def send_message(self, message: str, id_channel: int | str, *, buttons: list[Button] | None = None):
-        buttons = buttons if buttons else []
+    async def send_message(self, message: str, id_channel: int, *, buttons: list[Button] = None):
         channel = self.client.get_channel(int(id_channel))
         if channel:
             view = View()
-
-            for button in buttons:
+            for button in buttons or []:
                 view.add_item(button)
-
             await channel.send(message, view=view)
         else:
             self.logger.error(f'Channel {id_channel} not found.')
 
     @_run_async()
-    async def send_direct_message(self, message: str, id_user: int | str, *, buttons: list[Button]):
+    async def send_direct_message(self, message: str, id_user: int, *, buttons: list[Button] = None):
         user = await self.client.fetch_user(id_user)
         if user:
             view = View()
-            for button in buttons:
+            for button in buttons or []:
                 view.add_item(button)
-
             await user.send(message, view=view)
         else:
             self.logger.error(f'User {id_user} not found.')
@@ -124,70 +117,27 @@ class DiscordManager:
         server = self.client.get_guild(int(server_id))
         return server.members if server else []
 
-    async def get_role_from_guild(self, server_id) -> Sequence[Role]:
-        server = self.client.get_guild(int(server_id))
-        return server.roles if server else []
-
     async def get_roles_from_member(self, server_id, id_member) -> Sequence[Role]:
         server = self.client.get_guild(int(server_id))
-        if server is None:
-            self.logger.error(f'Server with ID {server_id} not found')
-            return []
-
-        member = server.get_member(int(id_member))
-        if member is None:
-            self.logger.error(f'Member with ID {id_member} not found in server {server_id}')
-            return []
-
-        return member.roles
-
-    async def get_categorie_from_guild(self, id_server, id_category):
-        server = self.client.get_guild(int(id_server))
-        if server:
-            return discord.utils.get(server.categories, id=int(id_category))
-        return None
+        member = server.get_member(int(id_member)) if server else None
+        return member.roles if member else []
 
     @_run_async()
     async def create_role(self, server_id, name, hex_color):
         server = self.client.get_guild(int(server_id))
         if server:
-            role = await server.create_role(name=name, color=discord.Color(int(hex_color, 16)))
-            return role
+            return await server.create_role(name=name, color=discord.Color(int(hex_color, 16)))
         self.logger.error(f'Server {server_id} not found.')
 
     @_run_async()
     async def add_role_to_member(self, server_id, id_member, id_role):
         server = self.client.get_guild(int(server_id))
-        if server:
-            member = server.get_member(int(id_member))
-            role = server.get_role(int(id_role))
-            if member and role:
-                await member.add_roles(role)
-            else:
-                self.logger.error(f'Member or role not found in server {server_id}.')
+        member, role = server.get_member(int(id_member)), server.get_role(int(id_role)) if server else (None, None)
+        if member and role:
+            await member.add_roles(role)
+        else:
+            self.logger.error(f'Member or role not found in server {server_id}.')
 
     @_run_async()
-    async def remove_role_from_member(self, server_id, id_member, id_role):
-        server = self.client.get_guild(int(server_id))
-        if server:
-            member = server.get_member(int(id_member))
-            role = server.get_role(int(id_role))
-            if member and role:
-                await member.remove_roles(role)
-            else:
-                self.logger.error(f'Member or role not found in server {server_id}.')
-
-    @_run_async()
-    async def set_channel_on_category(self, server_id, channel_id, id_category):
-        server = self.client.get_guild(int(server_id))
-        if server:
-            channel = server.get_channel(int(channel_id))
-            category = await self.get_categorie_from_guild(server_id, id_category)
-            if channel and category:
-                await channel.edit(category=category)
-            else:
-                self.logger.error(f'Channel or category not found in server {server_id}.')
-
-    @_run_async()
-    async def change_presence(self, activity):
+    async def change_presence(self, activity: str):
         await self.client.change_presence(activity=discord.Game(name=activity))
