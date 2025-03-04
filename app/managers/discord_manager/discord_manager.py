@@ -80,7 +80,7 @@ class DiscordManager:
             return
 
         if message.channel.id == 1342417055386960004:
-            payload = {"author": str(message.author), "message": message.content}
+            payload = {"author": str(message.author.display_name), "message": message.content}
             try:
                 response = requests.post("http://lyon.mediapi.org:5001/chat", json=payload)
                 response.raise_for_status()
