@@ -65,16 +65,13 @@ class DiscordManager:
             return
 
         if message.channel.id == 1342417055386960004:
-            # Envoi du message à l'API externe
             payload = {
                 "author": str(message.author),
                 "message": message.content
             }
             try:
                 response = requests.post("http://lyon.mediapi.org:5001/chat", json=payload)
-                if response.status_code == 200:
-                    await message.channel.send("Message envoyé à l'API avec succès!")
-                else:
+                if response.status_code != 200:
                     await message.channel.send(f"Erreur API: {response.status_code}")
             except requests.RequestException as e:
                 self.logger.error(f"Erreur lors de l'envoi du message à l'API: {e}")
