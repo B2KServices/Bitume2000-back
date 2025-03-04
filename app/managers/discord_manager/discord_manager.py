@@ -47,8 +47,11 @@ class DiscordManager:
         self.logger = get_console_logger('bot_manager')
 
     async def on_ready(self):
-        await self.tree.sync(guild=None)  # Synchronisation globale
-        print(f'We have logged in as {self.client.user}')
+        print(f'Bot is online as {self.client.user}')
+        # Make sure the commands are registered with the bot's command tree
+        self.tree.add_command(self.players)
+        await self.tree.sync(guild=None)  # This syncs commands globally
+        print(f'Commandes synchronisées pour {self.client.user}')
 
     async def on_interaction(self, interaction: discord.Interaction):
         custom_id = interaction.data.get('custom_id')
@@ -66,16 +69,10 @@ class DiscordManager:
         response = requests.get("http://lyon.mediapi.org:5001/players")
         data = json.loads(response.text)
         if "players" not in data:
+            await interaction.response.send_message("Impossible de récupérer les joueurs.", ephemeral=True)
             return
-        else:
-            await interaction.response.send_message(f"il y a {data["players"]} sur le serveur")
-        guild = interaction.guild
-        if guild is None:
-            await interaction.response.send_message("Cette commande doit être utilisée dans un serveur.", ephemeral=True)
-            return
-        nb_players = len(guild.members)
-        await interaction.response.send_message(f"Nombre de joueurs sur le serveur : {nb_players}")
 
+        await interaction.response.send_message(f"Il y a {data['players']} joueurs sur le serveur.")
 
     async def on_message(self, message):
         print('Message received!')
