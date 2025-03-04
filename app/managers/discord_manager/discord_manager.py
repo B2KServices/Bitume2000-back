@@ -1,4 +1,6 @@
 import asyncio
+import json
+import requests
 from collections.abc import Sequence
 from functools import wraps
 
@@ -62,6 +64,22 @@ class DiscordManager:
         if message.author == self.client.user:
             return
 
+        if message.channel.id == 1342417055386960004:
+            # Envoi du message à l'API externe
+            payload = {
+                "author": str(message.author),
+                "message": message.content
+            }
+            try:
+                response = requests.post("http://lyon.mediapi.org:5001/chat", json=payload)
+                if response.status_code == 200:
+                    await message.channel.send("Message envoyé à l'API avec succès!")
+                else:
+                    await message.channel.send(f"Erreur API: {response.status_code}")
+            except requests.RequestException as e:
+                self.logger.error(f"Erreur lors de l'envoi du message à l'API: {e}")
+                await message.channel.send("Erreur lors de l'envoi du message à l'API.")
+
         if message.content.startswith('$hello'):
             await message.channel.send('Hello!')
 
@@ -93,68 +111,71 @@ class DiscordManager:
 
     async def get_members_from_guild(self, server_id) -> Sequence[Member]:
         server = self.client.get_guild(int(server_id))
-        members = server.members
-        return members
+        return server.members if server else []
 
     async def get_role_from_guild(self, server_id) -> Sequence[Role]:
         server = self.client.get_guild(int(server_id))
-        roles = server.roles
-        return roles
+        return server.roles if server else []
 
     async def get_roles_from_member(self, server_id, id_member) -> Sequence[Role]:
         server = self.client.get_guild(int(server_id))
-        self.logger.info(f'Server: {server}')
-
         if server is None:
             self.logger.error(f'Server with ID {server_id} not found')
             return []
 
         member = server.get_member(int(id_member))
-        self.logger.info(f'Member: {member}')
-
         if member is None:
             self.logger.error(f'Member with ID {id_member} not found in server {server_id}')
             return []
 
-        roles = member.roles
-        self.logger.info(f'Roles: {roles}')
-        return roles
+        return member.roles
 
     async def get_categorie_from_guild(self, id_server, id_category):
         server = self.client.get_guild(int(id_server))
-        categories = server.categories
-        self.logger.info(f'Server: {server}')
-        self.logger.info(f'Categories: {categories}')
-        for category in categories:
-            if category.id == id_category:
-                return category
+        if server:
+            return discord.utils.get(server.categories, id=int(id_category))
         return None
 
     @_run_async()
     async def create_role(self, server_id, name, hex_color):
         server = self.client.get_guild(int(server_id))
-        role = await server.create_role(name=name, color=discord.Color(int(hex_color, 16)))
-        return role
+        if server:
+            role = await server.create_role(name=name, color=discord.Color(int(hex_color, 16)))
+            return role
+        self.logger.error(f'Server {server_id} not found.')
 
     @_run_async()
     async def add_role_to_member(self, server_id, id_member, id_role):
         server = self.client.get_guild(int(server_id))
-        member = server.get_member(int(id_member))
-        role = server.get_role(int(id_role))
-        await member.add_roles(role)
+        if server:
+            member = server.get_member(int(id_member))
+            role = server.get_role(int(id_role))
+            if member and role:
+                await member.add_roles(role)
+            else:
+                self.logger.error(f'Member or role not found in server {server_id}.')
 
     @_run_async()
     async def remove_role_from_member(self, server_id, id_member, id_role):
         server = self.client.get_guild(int(server_id))
-        member = server.get_member(int(id_member))
-        role = server.get_role(int(id_role))
-        await member.remove_roles(role)
+        if server:
+            member = server.get_member(int(id_member))
+            role = server.get_role(int(id_role))
+            if member and role:
+                await member.remove_roles(role)
+            else:
+                self.logger.error(f'Member or role not found in server {server_id}.')
 
     @_run_async()
     async def set_channel_on_category(self, server_id, channel_id, id_category):
         server = self.client.get_guild(int(server_id))
-        channel = server.get_channel(int(channel_id))
-        category = self.get_categorie_from_guild(int(id_category))
+        if server:
+            channel = server.get_channel(int(channel_id))
+            category = await self.get_categorie_from_guild(server_id, id_category)
+            if channel and category:
+                await channel.edit(category=category)
+            else:
+                self.logger.error(f'Channel or category not found in server {server_id}.')
 
     @_run_async()
     async def change_presence(self, activity):
