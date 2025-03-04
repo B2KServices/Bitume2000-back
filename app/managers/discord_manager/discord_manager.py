@@ -47,10 +47,9 @@ class DiscordManager:
         self.logger = get_console_logger('bot_manager')
 
     async def on_ready(self):
-        print(f'Bot is online as {self.client.user}')
-        # Make sure the commands are registered with the bot's command tree
-        self.tree.add_command(self.players)
-        await self.tree.sync(guild=None)  # This syncs commands globally
+        self.tree.clear_commands(guild=None)  # Efface les anciennes commandes
+        self.tree.add_command(self.players)  # Ajoute la commande
+        await self.tree.sync()  # Synchronise toutes les commandes
         print(f'Commandes synchronisées pour {self.client.user}')
 
     async def on_interaction(self, interaction: discord.Interaction):
