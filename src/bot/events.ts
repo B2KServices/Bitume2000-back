@@ -1,4 +1,4 @@
-import { Events, MessageFlags } from "discord.js";
+import { ActivityType, Events, MessageFlags } from "discord.js";
 import { client } from "./client";
 import config from "~/configs/config";
 import { logError, logInfo } from "~/middlewares";
@@ -17,11 +17,10 @@ import {
   authButton,
   memeVoteInteraction,
 } from "~/bot/services/buttonEvent.service";
+import { version } from "~~/package.json";
 
 export const registerEvents = () => {
   client.on(Events.ClientReady, async (readyClient) => {
-    console.log(`Logged in as ${readyClient.user.tag}!`);
-
     const roleCategories = await RoleCategory.findAll();
     if (!roleCategories || roleCategories.length === 0) {
       logError("No role categories found");
@@ -39,6 +38,10 @@ export const registerEvents = () => {
       logError("No users found");
       await generateUsers();
     }
+
+    readyClient.user.setActivity(`v${version}`, {
+      type: ActivityType.Custom,
+    });
   });
 
   client.on(Events.MessageCreate, async (message) => {
