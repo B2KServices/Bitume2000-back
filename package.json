@@ -1,0 +1,61 @@
+{
+  "name": "bitume-back",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --watch src -e js,ts,json --exec \"ts-node --transpile-only src/index.ts\"",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "migrate": "sequelize-cli db:migrate",
+    "lint": "eslint 'src/**/*.{js,ts,jsx,tsx}'",
+    "lint:fix": "eslint 'src/**/*.{js,ts,jsx,tsx}' --fix",
+    "format": "prettier --check 'src/**/*.{js,ts,jsx,tsx}'",
+    "format:fix": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "_moduleAliases": {
+    "~": "dist",
+    "~~": "."
+  },
+  "dependencies": {
+    "@discordjs/voice": "^0.18.0",
+    "axios": "^1.9.0",
+    "body-parser": "^2.2.0",
+    "bufferutil": "^4.0.9",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "lint": "^1.1.2",
+    "module-alias": "^2.2.3",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.14.1",
+    "organ": "^0.0.0",
+    "pg": "^8.15.5",
+    "prettier": "^3.5.3",
+    "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.2",
+    "umzug": "^3.8.2",
+    "winston": "^3.17.0",
+    "zlib-sync": "^0.1.10"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.14.1",
+    "@types/pg": "^8.11.14",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  }
+}
