@@ -1,10 +1,10 @@
 {
   "name": "bitume-back",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src -e js,ts,json --exec \"ts-node --transpile-only src/index.ts\"",
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "start": "node dist/src/index.js",
     "migrate": "sequelize-cli db:migrate",
     "lint": "eslint 'src/**/*.{js,ts,jsx,tsx}'",

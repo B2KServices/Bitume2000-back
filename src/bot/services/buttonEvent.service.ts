@@ -88,8 +88,13 @@ export const memeVoteInteraction = async (
 
     if (now.isBefore(cooldownEnd)) {
       const secondsLeft = cooldownEnd.diff(now, "second");
+      const minutes = Math.floor(secondsLeft / 60);
+      const seconds = secondsLeft % 60;
+
       await interaction.reply({
-        content: `⏳ Tu dois attendre encore ${secondsLeft} seconde(s) avant de pouvoir voter à nouveau.`,
+        content: `⏳ Tu dois attendre encore ${minutes}:${seconds
+          .toString()
+          .padStart(2, "0")} minute(s).`,
         flags: MessageFlags.Ephemeral,
       });
       return;
@@ -129,8 +134,16 @@ export const memeVoteInteraction = async (
       config.DISCORD_BEST_MEME_CHANNEL_ID,
     )) as TextChannel;
     await bestChannel.send(repostPayload);
-    await interaction.message.delete();
     memeUser.legendaryMeme += 1;
+    const validateButton = new ButtonBuilder({
+      customId: `meme;${userId}`,
+      label: "Validé ✅",
+      style: ButtonStyle.Success,
+    });
+    const actions = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      validateButton,
+    );
+    await interaction.message.edit({ components: [actions] });
     await memeUser.save();
   } else {
     const upvote = new ButtonBuilder({
@@ -160,8 +173,13 @@ export const memeVoteInteraction = async (
   const nextVoteDate = now.add(config.MEME_VOTE_COOLDOWN, "millisecond");
   const secondsUntilNextVote = nextVoteDate.diff(dayjs(), "second");
 
+  const minutes = Math.floor(secondsUntilNextVote / 60);
+  const seconds = secondsUntilNextVote % 60;
+
   await interaction.reply({
-    content: `✅ À voté !\nTu pourras voter à nouveau dans ${secondsUntilNextVote} seconde(s).`,
+    content: `✅ À voté !\nTu pourras voter à nouveau dans ${minutes}:${seconds
+      .toString()
+      .padStart(2, "0")} minute(s).`,
     flags: MessageFlags.Ephemeral,
   });
 };
