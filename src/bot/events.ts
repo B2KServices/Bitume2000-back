@@ -1,4 +1,4 @@
-import { ActivityType, Events, MessageFlags } from "discord.js";
+import { ActivityType, Events } from "discord.js";
 import { client } from "./client";
 import config from "~/configs/config";
 import { logError, logInfo } from "~/middlewares";

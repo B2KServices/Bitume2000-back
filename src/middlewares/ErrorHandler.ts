@@ -2,7 +2,7 @@ import { ErrorRequestHandler } from "express";
 import { CustomError } from "~/errors";
 import { logError } from "~/middlewares/Logger";
 
-const ErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
+const ErrorHandler: ErrorRequestHandler = (err, req, res) => {
   if (err instanceof CustomError) {
     res.status(err.statusCode).json({
       status: err.status,

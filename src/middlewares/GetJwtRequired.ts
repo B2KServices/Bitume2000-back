@@ -12,7 +12,7 @@ function getJwtRequired(req: Request, res: Response, next: NextFunction): void {
   try {
     req.userId = jwt.verify(token, config.JWT_SECRET) as string;
     next();
-  } catch (err) {
+  } catch {
     res.sendStatus(403);
     return;
   }

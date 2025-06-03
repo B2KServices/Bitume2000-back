@@ -7,6 +7,9 @@ import { SequelizeStorage, Umzug } from "umzug";
 import { sequelize } from "~/loaders";
 import * as console from "node:console";
 import errorHandler from "~/middlewares/ErrorHandler";
+import morgan from "morgan";
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 
 declare module "express" {
   interface Request {
@@ -14,9 +17,7 @@ declare module "express" {
   }
 }
 const app = express();
-const morgan = require("morgan");
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+
 const corsOption = {
   origin: true,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
@@ -74,7 +75,7 @@ export default async (): Promise<Application> => {
     await umzugMigration.up();
     await umzugSeeder.up();
     logDebug("[Migration] Up to date.");
-  } catch (e) {
+  } catch {
     logDebug("[Migration] error");
   }
 
