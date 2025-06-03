@@ -92,9 +92,9 @@ export const memeVoteInteraction = async (
       const seconds = secondsLeft % 60;
 
       await interaction.reply({
-        content: `⏳ Tu dois attendre encore ${minutes}:${seconds
+        content: `⏳ Tu dois attendre encore ${minutes.toString().padStart(2, "0")} minutes et ${seconds
           .toString()
-          .padStart(2, "0")} minute(s).`,
+          .padStart(2, "0")} secondes.`,
         flags: MessageFlags.Ephemeral,
       });
       return;
