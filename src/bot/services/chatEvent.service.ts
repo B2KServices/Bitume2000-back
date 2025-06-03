@@ -58,7 +58,6 @@ export const generateMemeButton = (
   const total = config.MEME_VOTE_REQUIRED * 2;
   const filled = Math.floor((value / total) * 20);
   const text = `[${" |".repeat(filled)}${" -".repeat(20 - filled)} ] ${(filled / 20) * 100}%`;
-  console.log(text);
   return new ButtonBuilder({
     customId: `progress_meme;${messageId};${value}`,
     label: text,

@@ -9,10 +9,11 @@ import {
   TextChannel,
 } from "discord.js";
 import { userInAuth } from "~/services/auth.service";
-import { MemeType } from "~/types";
+import { MemeType, MemeVoteType } from "~/types";
 import config from "~/configs/config";
 import dayjs from "dayjs";
 import { generateMemeButton } from "~/bot/services/chatEvent.service";
+import { getVoteForMeme, updateVoteQuery, voteQuery } from "~/models/querys";
 
 export const authButton = async (
   interaction: ButtonInteraction,
@@ -50,30 +51,25 @@ export const memeVoteInteraction = async (
   interaction: ButtonInteraction,
   userId: string,
 ) => {
-  const vote = Number(interaction.customId.split(";")[2]);
+  const voteValue = Number(interaction.customId.split(";")[2]);
+  const voteType =
+    voteValue === 1 ? MemeVoteType.UPVOTE : MemeVoteType.DOWNVOTE;
 
-  const memeUser = await User.findOne({ where: { userId } });
-  if (!memeUser) {
+  const [memeUser, voter, meme] = await Promise.all([
+    User.findOne({ where: { userId } }),
+    User.findOne({ where: { discordId: interaction.user.id } }),
+    Meme.findOne({ where: { discordId: interaction.message.id } }),
+  ]);
+
+  if (!memeUser || !voter || !meme) {
     await interaction.reply({
-      content: "❌ Utilisateur non trouvé.",
+      content: `❌ ${!memeUser ? "Utilisateur (auteur)" : !voter ? "Utilisateur (voteur)" : "Mème"} non trouvé.`,
       flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  const user = await User.findOne({
-    where: { discordId: interaction.user.id },
-  });
-  if (!user) {
-    await interaction.reply({
-      content: "❌ Utilisateur non trouvé.",
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
-  console.log(`${user.userId} - ${userId}`);
-  if (user.userId == userId) {
+  if (voter.userId === userId) {
     await interaction.reply({
       content: "❌ Vous n'êtes pas autorisé à voter pour ce mème.",
       flags: MessageFlags.Ephemeral,
@@ -81,105 +77,95 @@ export const memeVoteInteraction = async (
     return;
   }
 
-  const now = dayjs();
-  const lastVote = user.memeLastVote ? dayjs(user.memeLastVote) : null;
-  if (lastVote) {
-    const cooldownEnd = lastVote.add(config.MEME_VOTE_COOLDOWN, "millisecond");
+  const previousVote = await getVoteForMeme(voter.userId, meme.memeId); // tu dois créer cette fonction (voir plus bas)
 
-    if (now.isBefore(cooldownEnd)) {
-      const secondsLeft = cooldownEnd.diff(now, "second");
-      const minutes = Math.floor(secondsLeft / 60);
-      const seconds = secondsLeft % 60;
-
-      await interaction.reply({
-        content: `⏳ Tu dois attendre encore ${minutes.toString().padStart(2, "0")} minutes et ${seconds
-          .toString()
-          .padStart(2, "0")} secondes.`,
-        flags: MessageFlags.Ephemeral,
-      });
-      return;
-    }
-  }
-
-  const meme = await Meme.findOne({
-    where: { discordId: interaction.message.id },
-  });
-  if (!meme) {
+  if (previousVote?.voteType === voteType) {
     await interaction.reply({
-      content: "❌ Mème non trouvé.",
+      content: "❌ Vous avez déjà voté pour ce mème.",
       flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  meme.votes += vote;
+  // Annule l'effet de l'ancien vote si nécessaire
+  if (previousVote) {
+    meme.votes -= previousVote.voteType === MemeVoteType.UPVOTE ? 1 : -1;
+    await updateVoteQuery(voter.userId, meme.memeId, voteType);
+  } else {
+    await voteQuery(voter.userId, meme.memeId, voteType);
+  }
+
+  // Applique le nouveau vote
+  meme.votes += voteValue;
 
   const repostPayload = {
     content: interaction.message.content,
     files: interaction.message.attachments.map((a) => a.url),
   };
 
-  if (meme.votes <= 0) {
-    meme.memeType = MemeType.DUD_MEME;
-    const dudChannel = (await interaction.guild?.channels.fetch(
-      config.DISCORD_DUD_MEME_CHANNEL_ID,
+  const repostMeme = async (
+    type: MemeType,
+    channelId: string,
+    updateCallback: () => Promise<void>,
+  ) => {
+    meme.memeType = type;
+    const targetChannel = (await interaction.guild?.channels.fetch(
+      channelId,
     )) as TextChannel;
-    await dudChannel.send(repostPayload);
-    await interaction.message.delete();
-    memeUser.dudMeme += 1;
+    await targetChannel.send(repostPayload);
+    await updateCallback();
     await memeUser.save();
+  };
+
+  if (meme.votes <= 0) {
+    await repostMeme(
+      MemeType.DUD_MEME,
+      config.DISCORD_DUD_MEME_CHANNEL_ID,
+      async () => {
+        await interaction.message.delete();
+        memeUser.dudMeme += 1;
+      },
+    );
   } else if (meme.votes >= config.MEME_VOTE_REQUIRED * 2) {
-    meme.memeType = MemeType.BEST_MEME;
-    const bestChannel = (await interaction.guild?.channels.fetch(
+    await repostMeme(
+      MemeType.BEST_MEME,
       config.DISCORD_BEST_MEME_CHANNEL_ID,
-    )) as TextChannel;
-    await bestChannel.send(repostPayload);
-    memeUser.legendaryMeme += 1;
-    const validateButton = new ButtonBuilder({
-      customId: `meme;${userId}`,
-      label: "Validé ✅",
-      style: ButtonStyle.Success,
-    });
+      async () => {
+        memeUser.legendaryMeme += 1;
+        const validated = new ButtonBuilder({
+          customId: `meme;${userId}`,
+          label: "Validé ✅",
+          style: ButtonStyle.Success,
+          disabled: true,
+        });
+        const actions = new ActionRowBuilder<ButtonBuilder>().addComponents(
+          validated,
+        );
+        await interaction.message.edit({ components: [actions] });
+      },
+    );
+  } else {
     const actions = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      validateButton,
+      new ButtonBuilder({
+        customId: `meme_vote;${userId};+1`,
+        label: "Upvote ⬆️",
+        style: ButtonStyle.Success,
+      }),
+      generateMemeButton(meme.votes, interaction.message.id),
+      new ButtonBuilder({
+        customId: `meme_vote;${userId};-1`,
+        label: "Downvote ⬇️",
+        style: ButtonStyle.Danger,
+      }),
     );
     await interaction.message.edit({ components: [actions] });
-    await memeUser.save();
-  } else {
-    const upvote = new ButtonBuilder({
-      customId: `meme_vote;${userId};+1`,
-      label: "Upvote ⬆️",
-      style: ButtonStyle.Success,
-    });
-    const downvote = new ButtonBuilder({
-      customId: `meme_vote;${userId};-1`,
-      label: "Downvote ⬇️",
-      style: ButtonStyle.Danger,
-    });
-    const progress = generateMemeButton(meme.votes, interaction.message.id);
-    const actions = new ActionRowBuilder<ButtonBuilder>()
-      .addComponents(upvote)
-      .addComponents(progress)
-      .addComponents(downvote);
-    await interaction.message.edit({
-      components: [actions],
-    });
   }
 
-  user.memeLastVote = now.toDate();
-  await meme.save();
-  await user.save();
-
-  const nextVoteDate = now.add(config.MEME_VOTE_COOLDOWN, "millisecond");
-  const secondsUntilNextVote = nextVoteDate.diff(dayjs(), "second");
-
-  const minutes = Math.floor(secondsUntilNextVote / 60);
-  const seconds = secondsUntilNextVote % 60;
+  voter.memeLastVote = dayjs().toDate();
+  await Promise.all([voter.save(), meme.save()]);
 
   await interaction.reply({
-    content: `✅ À voté !\nTu pourras voter à nouveau dans ${minutes}:${seconds
-      .toString()
-      .padStart(2, "0")} minute(s).`,
+    content: "✅ Vote enregistré !",
     flags: MessageFlags.Ephemeral,
   });
 };

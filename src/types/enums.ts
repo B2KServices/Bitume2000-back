@@ -3,3 +3,8 @@ export enum MemeType {
   BEST_MEME = 1,
   DUD_MEME = 2,
 }
+
+export enum MemeVoteType {
+  UPVOTE = 0,
+  DOWNVOTE = 1,
+}
