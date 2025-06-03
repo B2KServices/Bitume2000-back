@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20 # ou la version que tu utilises
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: ✅ Run ESLint
+        run: npm run lint
+
+      - name: ✅ Check Prettier formatting
+        run: npm run format
+
+      - name: 🛠️ Build the project
+        run: npm run build
