@@ -1,6 +1,6 @@
 {
   "name": "bitume-back",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src -e js,ts,json --exec \"ts-node --transpile-only src/index.ts\"",
