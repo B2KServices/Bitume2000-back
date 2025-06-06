@@ -6,6 +6,7 @@
     "dev": "nodemon --watch src -e js,ts,json --exec \"ts-node --transpile-only src/index.ts\"",
     "build": "npm run clean && tsc",
     "start": "node dist/src/index.js",
+    "start:log": "node dist/src/index.js >> logs/app.log 2>&1",
     "migrate": "sequelize-cli db:migrate",
     "lint": "eslint 'src/**/*.{js,ts,jsx,tsx}'",
     "lint:fix": "eslint 'src/**/*.{js,ts,jsx,tsx}' --fix",
