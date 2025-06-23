@@ -7,7 +7,9 @@ import {
   StreamType,
   VoiceConnection,
 } from "@discordjs/voice";
-import ytdl from "@distube/ytdl";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+import ytdl from "ytdl-core";
 import ytSearch from "yt-search";
 import { client } from "~/bot/client";
 import {
