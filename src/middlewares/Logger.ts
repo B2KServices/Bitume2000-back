@@ -3,7 +3,6 @@ import dayjs from "dayjs";
 
 const { combine, printf, colorize } = format;
 
-// Définir les couleurs personnalisées pour chaque niveau
 const customColors = {
   info: "green",
   warn: "yellow",
@@ -12,10 +11,8 @@ const customColors = {
   prod: "white", // couleur personnalisée pour le niveau 'prod' si utilisé
 };
 
-// Appliquer les couleurs personnalisées
 addColors(customColors);
 
-// Formatter personnalisé avec couleur
 const customLog = printf(({ level, message }) => {
   const logTime = dayjs().format("HH:mm:ss");
   return `[${level} ${logTime}]: ${message}`;

@@ -11,6 +11,18 @@ const commands = [
     name: "tps",
     description: "Récupérer le TPS du serveur",
   },
+  {
+    name: "play",
+    description: "Jouer de la musique",
+    options: [
+      {
+        name: "recherche",
+        type: 3,
+        description: "URL de la musique à jouer ou recherche",
+        required: false,
+      },
+    ],
+  },
 ];
 
 export const registerCommands = async () => {

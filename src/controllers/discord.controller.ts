@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { sendMessageToChannel } from "~/services/discord.service";
+import { HttpStatusCode } from "axios";
 
 export const sendChat = async (req: Request, res: Response) => {
   const { content, channelId } = req.body;
   await sendMessageToChannel(content, channelId);
-  res.sendStatus(204);
+  res.sendStatus(HttpStatusCode.NoContent);
 };

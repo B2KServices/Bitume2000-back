@@ -1,4 +1,4 @@
-import { ActivityType, Events } from "discord.js";
+import { ActivityType, Events, Interaction } from "discord.js";
 import { client } from "./client";
 import config from "~/configs/config";
 import { logError, logInfo } from "~/middlewares";
@@ -8,7 +8,10 @@ import {
   generateRoles,
   generateUsers,
 } from "~/services/discord.service";
-import { playersCommand } from "~/bot/services/commands.service";
+import {
+  playersCommand,
+  playMusicCommand,
+} from "~/bot/services/commands.service";
 import {
   chatMinecraftEvent,
   createNewMeme,
@@ -18,6 +21,7 @@ import {
   memeVoteInteraction,
 } from "~/bot/services/buttonEvent.service";
 import { version } from "~~/package.json";
+import { handleMusicButton } from "~/bot/services/musicPlayer.service";
 
 export const registerEvents = () => {
   client.on(Events.ClientReady, async (readyClient) => {
@@ -57,19 +61,50 @@ export const registerEvents = () => {
     }
   });
 
-  client.on(Events.InteractionCreate, async (interaction) => {
-    if (interaction.isChatInputCommand()) {
-      if (interaction.commandName === "players") {
-        await playersCommand(interaction);
-      } else if (interaction.commandName === "tps") {
-        await interaction.reply("Coming soon!");
+  client.on(Events.InteractionCreate, async (interaction: Interaction) => {
+    try {
+      // 🧩 Slash Commands
+      if (interaction.isChatInputCommand()) {
+        switch (interaction.commandName) {
+          case "players":
+            return playersCommand(interaction);
+          case "tps":
+            return interaction.reply("Coming soon!");
+          case "play":
+            return playMusicCommand(interaction);
+          default:
+            return interaction.reply({
+              content: "❓ Commande inconnue.",
+              ephemeral: true,
+            });
+        }
       }
-    } else if (interaction.isButton()) {
-      const [action, userId] = interaction.customId.split(";");
-      if (action === "approve_auth") {
-        await authButton(interaction, userId);
-      } else if (action === "meme_vote") {
-        await memeVoteInteraction(interaction, userId);
+
+      // 🔘 Button Interactions
+      if (interaction.isButton()) {
+        const [action, userId] = interaction.customId.split(";");
+
+        // 🔐 Auth & vote
+        if (action === "approve_auth") {
+          return authButton(interaction, userId);
+        }
+
+        if (action === "meme_vote") {
+          return memeVoteInteraction(interaction, userId);
+        }
+
+        // 🎵 Music controls
+        return handleMusicButton(interaction);
+      }
+    } catch (err) {
+      console.error("❌ Erreur lors de l'interaction :", err);
+      if (interaction.isRepliable()) {
+        await interaction
+          .reply({
+            content: "❌ Une erreur est survenue lors du traitement.",
+            ephemeral: true,
+          })
+          .catch(() => {});
       }
     }
   });

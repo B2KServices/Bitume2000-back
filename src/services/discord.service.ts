@@ -2,8 +2,9 @@ import { logError, logInfo } from "~/middlewares";
 import { Role, RoleCategory, User, UsersHasRoles } from "~/models";
 import config from "~/configs/config";
 import { client } from "~/bot/client";
-import { ActionRowBuilder, TextChannel } from "discord.js";
+import { ActionRowBuilder, ActivityType, TextChannel } from "discord.js";
 import { NotFoundError } from "~/errors";
+import { version } from "~~/package.json";
 
 export const sendMessageToChannel = async (
   content: string,
@@ -246,4 +247,10 @@ export const generateUsers = async () => {
   }
 
   logInfo("Users and roles created successfully.");
+};
+
+export const setBotDefaultActivity = () => {
+  client.user?.setActivity(`v${version}`, {
+    type: ActivityType.Custom,
+  });
 };
