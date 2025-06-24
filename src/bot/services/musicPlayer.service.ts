@@ -312,7 +312,7 @@ export async function fetchYouTubePlaylistTracks(
 
 export const handleMusicButton = async (interaction: ButtonInteraction) => {
   if (!session) {
-    return interaction.editReply({
+    return interaction.reply({
       content: "❌ Aucune session musicale en cours.",
     });
   }
