@@ -10,6 +10,7 @@ import errorHandler from "~/middlewares/ErrorHandler";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
+import { schedule } from "~/middlewares/CronTab";
 
 declare module "express" {
   interface Request {
@@ -43,6 +44,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json({ limit: "10mb" })); // for parsing application/json
 app.use(cors(corsOption));
+schedule();
 
 app.use("/api", allRoutes);
 
