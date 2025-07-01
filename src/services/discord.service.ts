@@ -196,11 +196,11 @@ export const generateRoles = async () => {
     if (dbRoles.some((role) => role.discordId === value.id)) {
       logInfo(`Role ${value.name} already exists in the database.`);
     } else {
-      logInfo(`Creating role ${value.name} in the database.`);
       const category = categories.find(
         (category) => category.color === value.hexColor.toLowerCase(),
       );
       if (category) {
+        logInfo(`Creating role ${value.name} in the database.`);
         Role.create({
           name: value.name,
           color: value.hexColor,
@@ -281,6 +281,5 @@ export const synchronizeDiscordData = async () => {
   logInfo("Synchronizing Discord data...");
   await generateRoles();
   await generateUsers();
-  setBotDefaultActivity();
   logInfo("Discord data synchronized successfully.");
 };
