@@ -214,6 +214,7 @@ export const generateRoles = async () => {
 
 export const generateUsers = async () => {
   logInfo("Creating users...");
+  await UsersHasRoles.destroy({ where: {} });
   const guild = await client.guilds.fetch(config.DISCORD_GUILD_ID);
   if (!guild) {
     logError("Guild not found");
@@ -231,12 +232,19 @@ export const generateUsers = async () => {
     const discordUser = member.user;
 
     if (!discordUser) continue;
-
-    const dbUser = await User.create({
-      discordId: discordUser.id,
-      username: discordUser.username,
-      avatarUrl: discordUser.avatar || undefined,
+    const existingUser = await User.findOne({
+      where: {
+        discordId: discordUser.id,
+      },
     });
+
+    const dbUser =
+      existingUser ??
+      (await User.create({
+        discordId: discordUser.id,
+        username: discordUser.username,
+        avatarUrl: discordUser.avatar || undefined,
+      }));
     for (const [_, discordRole] of member.roles.cache) {
       const role = await Role.findOne({
         where: {

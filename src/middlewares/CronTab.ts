@@ -14,5 +14,6 @@ export const midnightCron = () => {
 };
 
 export const schedule = () => {
+  logInfo("Scheduling cron job");
   midnightCron();
 };
