@@ -187,27 +187,34 @@ export const generateRoles = async () => {
     return;
   }
   const roles = await guild.roles.fetch();
+  const dbRoles = await Role.findAll({});
   if (!roles) {
     logError("Roles not found");
     return;
   }
   roles.forEach((value) => {
-    const category = categories.find(
-      (category) => category.color === value.hexColor.toLowerCase(),
-    );
-    if (category) {
-      Role.create({
-        name: value.name,
-        color: value.hexColor,
-        roleCategoryId: category.roleCategoryId,
-        discordId: value.id,
-      });
+    if (dbRoles.some((role) => role.discordId === value.id)) {
+      logInfo(`Role ${value.name} already exists in the database.`);
+    } else {
+      const category = categories.find(
+        (category) => category.color === value.hexColor.toLowerCase(),
+      );
+      if (category) {
+        logInfo(`Creating role ${value.name} in the database.`);
+        Role.create({
+          name: value.name,
+          color: value.hexColor,
+          roleCategoryId: category.roleCategoryId,
+          discordId: value.id,
+        });
+      }
     }
   });
 };
 
 export const generateUsers = async () => {
   logInfo("Creating users...");
+  await UsersHasRoles.destroy({ where: {} });
   const guild = await client.guilds.fetch(config.DISCORD_GUILD_ID);
   if (!guild) {
     logError("Guild not found");
@@ -225,12 +232,19 @@ export const generateUsers = async () => {
     const discordUser = member.user;
 
     if (!discordUser) continue;
-
-    const dbUser = await User.create({
-      discordId: discordUser.id,
-      username: discordUser.username,
-      avatarUrl: discordUser.avatar || undefined,
+    const existingUser = await User.findOne({
+      where: {
+        discordId: discordUser.id,
+      },
     });
+
+    const dbUser =
+      existingUser ??
+      (await User.create({
+        discordId: discordUser.id,
+        username: discordUser.username,
+        avatarUrl: discordUser.avatar || undefined,
+      }));
     for (const [_, discordRole] of member.roles.cache) {
       const role = await Role.findOne({
         where: {
@@ -238,19 +252,34 @@ export const generateUsers = async () => {
         },
       });
       if (role) {
-        await UsersHasRoles.create({
-          userId: dbUser.userId,
-          roleId: role.roleId,
+        const userHasRole = await UsersHasRoles.findOne({
+          where: {
+            userId: dbUser.userId,
+            roleId: role.roleId,
+          },
         });
+        if (!userHasRole) {
+          await UsersHasRoles.create({
+            userId: dbUser.userId,
+            roleId: role.roleId,
+          });
+        }
       }
     }
   }
 
-  logInfo("Users and roles created successfully.");
+  logInfo("Users and roles updated successfully.");
 };
 
 export const setBotDefaultActivity = () => {
   client.user?.setActivity(`v${version}`, {
     type: ActivityType.Custom,
   });
+};
+
+export const synchronizeDiscordData = async () => {
+  logInfo("Synchronizing Discord data...");
+  await generateRoles();
+  await generateUsers();
+  logInfo("Discord data synchronized successfully.");
 };

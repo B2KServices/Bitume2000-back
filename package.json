@@ -1,6 +1,6 @@
 {
   "name": "bitume-back",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src -e js,ts,json --exec \"ts-node --transpile-only src/index.ts\"",
@@ -12,7 +12,10 @@
     "lint:fix": "eslint 'src/**/*.{js,ts,jsx,tsx}' --fix",
     "format": "prettier --check 'src/**/*.{js,ts,jsx,tsx}'",
     "format:fix": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "bump:patch": "npm version patch",
+    "bump:minor": "npm version minor",
+    "bump:major": "npm version major"
   },
   "keywords": [],
   "author": "",
@@ -38,6 +41,7 @@
     "module-alias": "^2.2.3",
     "morgan": "^1.10.0",
     "mysql2": "^3.14.1",
+    "node-cron": "^4.2.0",
     "npm": "^11.4.2",
     "organ": "^0.0.0",
     "pg": "^8.15.5",

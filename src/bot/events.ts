@@ -22,6 +22,7 @@ import {
 } from "~/bot/services/buttonEvent.service";
 import { version } from "~~/package.json";
 import { handleMusicButton } from "~/bot/services/musicPlayer.service";
+import * as console from "node:console";
 
 export const registerEvents = () => {
   client.on(Events.ClientReady, async (readyClient) => {
@@ -50,7 +51,8 @@ export const registerEvents = () => {
 
   client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;
-    if (!message.channel || message.channel.type !== 0) return; // Ignore non-text channels
+    if (!message.channel || message.channel.type !== 0) return;
+    if (message.thread) return;
     const content = message.content.trim();
     logInfo(`[${message.channel.name}] ${message.author.username}: ${content}`);
     if (message.channelId === config.DISCORD_CHAT_MC_ID) {
