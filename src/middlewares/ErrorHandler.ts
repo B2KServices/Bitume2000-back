@@ -3,12 +3,14 @@ import { CustomError } from "~/errors";
 import { logError } from "~/middlewares/Logger";
 
 const ErrorHandler: ErrorRequestHandler = (err, req, res) => {
-  if (err instanceof CustomError) {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-    return;
+  if (res) {
+    if (err instanceof CustomError) {
+      res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+      return;
+    }
   }
 
   logError(err);
