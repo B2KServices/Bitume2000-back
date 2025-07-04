@@ -11,14 +11,16 @@ const ErrorHandler: ErrorRequestHandler = (err, req, res) => {
       });
       return;
     }
+
+    logError(err);
+
+    res.status(500).json({
+      status: "error",
+      message: "Internal Server Error",
+    });
+  } else {
+    logError(err);
   }
-
-  logError(err);
-
-  res.status(500).json({
-    status: "error",
-    message: "Internal Server Error",
-  });
   return;
 };
 
