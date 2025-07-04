@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, GuildMember } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  GuildMember,
+  TextChannel,
+} from "discord.js";
 import axios from "axios";
 import config from "~/configs/config";
 import { joinVoiceChannel } from "@discordjs/voice";
@@ -77,4 +81,44 @@ export const playMusicCommand = async (
   }
   await updateMessages();
   sendMusicPanel(interaction);
+};
+
+export const clearCommand = async (
+  interaction: ChatInputCommandInteraction,
+) => {
+  const number = interaction.options.getInteger("nombre");
+  const userId = interaction.options.getUser("utilisateur")?.id;
+  const channel = interaction.channel as TextChannel;
+
+  if (!channel || !number || number <= 0) {
+    interaction.reply(
+      "⚠️ Veuillez spécifier un nombre valide de messages à supprimer.",
+    );
+    return;
+  }
+
+  try {
+    const messages = await channel.messages.fetch({ limit: 100 }); // fetch 100 messages max (Discord API limit)
+    const now = Date.now();
+
+    const filtered = messages
+      .filter((msg) => !userId || msg.author.id === userId)
+      .filter((msg) => now - msg.createdTimestamp < 14 * 24 * 60 * 60 * 1000) // only messages < 14 days old
+      .first(number); // get only the desired number
+
+    if (!filtered.length) {
+      interaction.reply(
+        "⚠️ Aucun message supprimable trouvé (âge > 14 jours ou aucun message correspondant).",
+      );
+      return;
+    }
+
+    await channel.bulkDelete(filtered);
+    interaction.reply(`🗑️ ${filtered.length} message(s) supprimé(s).`);
+  } catch (err) {
+    console.error("Error during message deletion:", err);
+    interaction.reply(
+      "⚠️ Une erreur est survenue lors de la suppression des messages.",
+    );
+  }
 };

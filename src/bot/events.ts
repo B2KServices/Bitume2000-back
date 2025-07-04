@@ -11,6 +11,7 @@ import {
 import {
   playersCommand,
   playMusicCommand,
+  clearCommand,
 } from "~/bot/services/commands.service";
 import {
   chatMinecraftEvent,
@@ -74,6 +75,8 @@ export const registerEvents = () => {
             return interaction.reply("Coming soon!");
           case "play":
             return playMusicCommand(interaction);
+          case "clear":
+            return clearCommand(interaction);
           default:
             return interaction.reply({
               content: "❓ Commande inconnue.",
