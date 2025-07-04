@@ -51,6 +51,8 @@ export const memeVoteInteraction = async (
   interaction: ButtonInteraction,
   userId: string,
 ) => {
+  await interaction.deferReply({ ephemeral: true });
+
   const voteValue = Number(interaction.customId.split(";")[2]);
   const voteType =
     voteValue === 1 ? MemeVoteType.UPVOTE : MemeVoteType.DOWNVOTE;
@@ -62,32 +64,28 @@ export const memeVoteInteraction = async (
   ]);
 
   if (!memeUser || !voter || !meme) {
-    await interaction.reply({
+    await interaction.editReply({
       content: `❌ ${!memeUser ? "Utilisateur (auteur)" : !voter ? "Utilisateur (voteur)" : "Mème"} non trouvé.`,
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
   if (voter.userId === userId) {
-    await interaction.reply({
+    await interaction.editReply({
       content: "❌ Vous n'êtes pas autorisé à voter pour ce mème.",
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  const previousVote = await getVoteForMeme(voter.userId, meme.memeId); // tu dois créer cette fonction (voir plus bas)
+  const previousVote = await getVoteForMeme(voter.userId, meme.memeId);
 
   if (previousVote?.voteType === voteType) {
-    await interaction.reply({
+    await interaction.editReply({
       content: "❌ Vous avez déjà voté pour ce mème.",
-      flags: MessageFlags.Ephemeral,
     });
     return;
   }
 
-  // Annule l'effet de l'ancien vote si nécessaire
   if (previousVote) {
     meme.votes -= previousVote.voteType === MemeVoteType.UPVOTE ? 1 : -1;
     await updateVoteQuery(voter.userId, meme.memeId, voteType);
@@ -95,7 +93,6 @@ export const memeVoteInteraction = async (
     await voteQuery(voter.userId, meme.memeId, voteType);
   }
 
-  // Applique le nouveau vote
   meme.votes += voteValue;
 
   const repostPayload = {
@@ -164,8 +161,7 @@ export const memeVoteInteraction = async (
   voter.memeLastVote = dayjs().toDate();
   await Promise.all([voter.save(), meme.save()]);
 
-  await interaction.reply({
+  await interaction.editReply({
     content: "✅ Vote enregistré !",
-    flags: MessageFlags.Ephemeral,
   });
 };
