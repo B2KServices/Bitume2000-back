@@ -23,6 +23,24 @@ const commands = [
       },
     ],
   },
+  {
+    name: "clear",
+    description: "Supprimer les messages en masse",
+    options: [
+      {
+        name: "nombre",
+        type: 4,
+        description: "Nombre de messages à supprimer",
+        required: true,
+      },
+      {
+        name: "utilisateur",
+        type: 6,
+        description: "ID de l'utilisateur dont les messages seront supprimés",
+        required: false,
+      },
+    ],
+  },
 ];
 
 export const registerCommands = async () => {
