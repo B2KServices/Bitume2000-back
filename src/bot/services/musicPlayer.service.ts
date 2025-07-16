@@ -25,6 +25,7 @@ import {
 } from "discord.js";
 import ytpl from "@distube/ytpl";
 import { setBotDefaultActivity } from "~/services/discord.service";
+import { FFmpeg } from "prism-media";
 
 export let activeMessages: Message[] = [];
 interface Track {
@@ -131,18 +132,40 @@ const playNext = async () => {
   session.actualTrack = track;
   session.playing = true;
 
+  const ffmpegArgs = [
+    "-af",
+    [
+      "equalizer=f=60:width_type=h:width=100:g=5",
+      "equalizer=f=1000:width_type=h:width=200:g=-2",
+      "equalizer=f=8000:width_type=h:width=200:g=4",
+      "dynaudnorm",
+    ].join(","),
+    "-f",
+    "s16le",
+    "-ar",
+    "48000",
+    "-ac",
+    "2",
+  ];
+
+  const ffmpeg = new FFmpeg({
+    args: ffmpegArgs,
+  });
+
   const stream = ytdl(track.url, {
     filter: "audioonly",
     quality: "highestaudio",
     highWaterMark: 1 << 25,
-    dlChunkSize: 1 << 20,
   });
 
-  const resource = createAudioResource(stream, {
-    inputType: StreamType.WebmOpus,
+  const pcmStream = stream.pipe(ffmpeg);
+
+  const resource = createAudioResource(pcmStream, {
+    inputType: StreamType.Raw,
     inlineVolume: true,
   });
-  if (!client.user) return false;
+
+  if (!client.user) return;
   client.user.setActivity(`🎶 ${track.title} by ${track.author}`, {
     type: ActivityType.Listening,
   });
