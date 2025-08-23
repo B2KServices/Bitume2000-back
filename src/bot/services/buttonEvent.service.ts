@@ -1,5 +1,5 @@
 import { Meme, User } from "~/models";
-import { logDebug } from "~/middlewares";
+import { logInfo } from "~/middlewares";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -22,7 +22,6 @@ export const authButton = async (
   const user = await User.findOne({
     where: { discordId: interaction.user.id },
   });
-  logDebug(`clicked by ${user?.userId}, ${userId}`);
 
   if (user?.userId !== userId) {
     await interaction.reply({
@@ -38,6 +37,11 @@ export const authButton = async (
     await interaction.message.edit({
       content: "✅ Connexion approuvée. Vous pouvez maintenant vous connecter.",
       components: [],
+    });
+    logInfo(`${user?.username} approved his authentication`, {
+      userId: user?.userId,
+      userName: user?.username,
+      context: "Authentication",
     });
   } else {
     await interaction.reply({
@@ -87,9 +91,21 @@ export const memeVoteInteraction = async (
   }
 
   if (previousVote) {
+    logInfo("${voter.username} change his vote", {
+      userId: voter.userId,
+      userName: voter.username,
+      context: "Meme Vote",
+      memeId: meme.memeId,
+    });
     meme.votes -= previousVote.voteType === MemeVoteType.UPVOTE ? 1 : -1;
     await updateVoteQuery(voter.userId, meme.memeId, voteType);
   } else {
+    logInfo("${voter.username} voted", {
+      userId: voter.userId,
+      userName: voter.username,
+      context: "Meme Vote",
+      memeId: meme.memeId,
+    });
     await voteQuery(voter.userId, meme.memeId, voteType);
   }
 
@@ -115,6 +131,13 @@ export const memeVoteInteraction = async (
   };
 
   if (meme.votes <= 0) {
+    logInfo(`${meme.memeId} has been voted as dud meme`, {
+      postedUserId: memeUser.userId,
+      postedUserName: memeUser.username,
+      context: "Meme Vote",
+      memeId: meme.memeId,
+      type: "DUD_MEME",
+    });
     await repostMeme(
       MemeType.DUD_MEME,
       config.DISCORD_DUD_MEME_CHANNEL_ID,
@@ -124,6 +147,13 @@ export const memeVoteInteraction = async (
       },
     );
   } else if (meme.votes >= config.MEME_VOTE_REQUIRED * 2) {
+    logInfo(`${meme.memeId} has been voted as legendary meme`, {
+      postedUserId: memeUser.userId,
+      postedUserName: memeUser.username,
+      context: "Meme Vote",
+      memeId: meme.memeId,
+      type: "BEST_MEME",
+    });
     await repostMeme(
       MemeType.BEST_MEME,
       config.DISCORD_BEST_MEME_CHANNEL_ID,

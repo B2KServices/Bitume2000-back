@@ -47,13 +47,17 @@ export const registerCommands = async () => {
   const rest = new REST({ version: "10" }).setToken(config.DISCORD_TOKEN);
 
   try {
-    logInfo("Started refreshing application (/) commands.");
+    logInfo("Started refreshing application (/) commands.", {
+      context: "Commands",
+    });
 
     await rest.put(Routes.applicationCommands(config.DISCORD_CLIENT_ID), {
       body: commands,
     });
 
-    logInfo("Successfully reloaded application (/) commands.");
+    logInfo("Successfully reloaded application (/) commands.", {
+      context: "Commands",
+    });
   } catch (error) {
     logError(error);
   }

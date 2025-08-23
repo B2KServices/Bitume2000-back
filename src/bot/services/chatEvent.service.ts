@@ -1,4 +1,4 @@
-import { logError } from "~/middlewares";
+import { logError, logInfo } from "~/middlewares";
 import axios from "axios";
 import config from "~/configs/config";
 import {
@@ -47,6 +47,17 @@ export const chatMinecraftEvent = async (
         },
       },
     );
+    logInfo(
+      `information envoyé à BitumeMc | ${JSON.stringify({
+        author: `${messageDisplayName}§r`,
+        message: finalMessage,
+      })}`,
+      {
+        context: "Minecraft Chat",
+        userId: message.author.id,
+        userName: message.author.username,
+      },
+    );
   } catch (err) {
     logError(`Erreur lors de l’envoi à l’API : ${err}`);
   }
@@ -73,7 +84,9 @@ export const createNewMeme = async (message: Message) => {
     where: { discordId: message.author.id },
   });
   if (!user) {
-    logError(`User not found for author: ${message.author.id}`);
+    logError(`User not found for author: ${message.author.id}`, {
+      context: "Meme Creation",
+    });
     return;
   }
 
@@ -99,12 +112,25 @@ export const createNewMeme = async (message: Message) => {
   };
 
   const memeMessage = await channel.send(newMessage);
+  logInfo(`New meme created by ${user.username} (${user.userId})`, {
+    context: "Meme Creation",
+    memeId: memeMessage.id,
+    userId: user.userId,
+    userName: user.username,
+  });
   Meme.create({
     discordId: memeMessage.id,
     authorId: user.userId,
     votes: config.MEME_VOTE_REQUIRED,
   }).catch((err) => {
-    logError(`Failed to create meme in database: ${err}`);
+    logError(`Failed to create meme in database: ${err}`, {
+      context: "Meme Creation",
+    });
+    memeMessage.delete();
+    message.reply(
+      "❌ Une erreur est survenue lors de la création du meme. Veuillez réessayer plus tard.",
+    );
+    return;
   });
   await message.delete();
 };

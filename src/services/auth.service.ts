@@ -5,6 +5,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import { UserModel } from "~/models/User";
 import jwt from "jsonwebtoken";
 import config from "~/configs/config";
+import { logInfo } from "~/middlewares";
 
 export const userInAuth: { userId: string; approved: boolean }[] = [];
 export const generateJWT = (userId: string): string => {
@@ -21,6 +22,10 @@ export const registerDiscord = async (
   });
   if (!user) throw new UnauthorizedError();
   const userId = user.userId;
+  logInfo(`User ${username} is trying to authenticate`, {
+    context: "Auth Service",
+    userId,
+  });
   const message = `Bonjour, ${user.username} !\nUne demande de connexion a été faites merci d'approuver la demande pour continuer.\nSi vous n'êtes pas à l'origine de cette demande, veuillez ignorer ce message.`;
   const approveButton = new ButtonBuilder({
     customId: `approve_auth;${userId}`,

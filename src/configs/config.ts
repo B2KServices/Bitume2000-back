@@ -25,6 +25,8 @@ interface Config {
   DISCORD_BEST_MEME_CHANNEL_ID: string;
   MEME_VOTE_REQUIRED: number;
   MEME_VOTE_COOLDOWN: number;
+  LOKI_AUTH_KEY: string;
+  LOKI_URL: string;
 }
 
 const config: Config = {
@@ -49,6 +51,8 @@ const config: Config = {
   DISCORD_BEST_MEME_CHANNEL_ID: process.env.DISCORD_BEST_MEME_CHANNEL_ID || "",
   MEME_VOTE_REQUIRED: Number(process.env.MEME_VOTE_REQUIRED) || 5,
   MEME_VOTE_COOLDOWN: Number(process.env.MEME_VOTE_COOLDOWN) || 60, // in seconds
+  LOKI_AUTH_KEY: process.env.LOKI_AUTH_KEY || "",
+  LOKI_URL: process.env.LOKI_URL || "",
 };
 
 export default config;

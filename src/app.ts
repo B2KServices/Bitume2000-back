@@ -2,7 +2,7 @@ import "module-alias/register";
 import cors from "cors";
 import express, { Application } from "express";
 import allRoutes from "./routes";
-import { logDebug } from "~/middlewares/Logger";
+import { logDebug, logInfo } from "~/middlewares/Logger";
 import { SequelizeStorage, Umzug } from "umzug";
 import { sequelize } from "~/loaders";
 import * as console from "node:console";
@@ -28,6 +28,19 @@ const corsOption = {
 
 app.use(morgan("dev"));
 app.use(express.json());
+app.use((req, res, next) => {
+  const { method, originalUrl } = req;
+  const ip =
+    req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+
+  logInfo(`➡️ ${method} ${originalUrl}`, {
+    ip,
+    route: originalUrl,
+    method,
+  });
+
+  next();
+});
 app.use((req, res, next) => {
   req.app.locals.config = {};
   next();

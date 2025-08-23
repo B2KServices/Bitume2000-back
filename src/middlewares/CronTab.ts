@@ -4,7 +4,9 @@ import { logError, logInfo } from "~/middlewares/Logger";
 
 export const midnightCron = () => {
   cron.schedule("0 0 * * *", async () => {
-    logInfo("Running task at midnight");
+    logInfo("Running task at midnight", {
+      context: "cron",
+    });
     try {
       await synchronizeDiscordData();
     } catch (error) {
@@ -14,6 +16,8 @@ export const midnightCron = () => {
 };
 
 export const schedule = () => {
-  logInfo("Scheduling cron job");
+  logInfo("Scheduling cron job", {
+    context: "cron",
+  });
   midnightCron();
 };

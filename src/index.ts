@@ -16,7 +16,9 @@ const startServer = async () => {
     initSocket(httpServer);
 
     httpServer.listen(port, () => {
-      logInfo("Server started on port " + config.APP_PORT);
+      logInfo("Server started on port " + config.APP_PORT, {
+        context: "Started App",
+      });
     });
     await startBot();
   } catch (err) {

@@ -53,6 +53,10 @@ export const sendMessageToChannel = async (
   );
 
   const finalMessage = editedContent.join(" ");
+  logInfo(`Sending message to channel ${channel.name}: ${finalMessage}`, {
+    context: "Discord Service",
+    channelId,
+  });
   await channel.send(finalMessage);
 };
 
@@ -73,6 +77,17 @@ export const removeRoleOnUser = async (
   if (!user) {
     throw new NotFoundError("user not found on Discord");
   }
+  const userDb = await User.findOne({
+    where: {
+      discordId: userDiscordId,
+    },
+  });
+  logInfo(`Removing role ${role.name} from user ${user.user.username}`, {
+    context: "Discord Service",
+    userDiscordId,
+    roleId: roleDiscordId,
+    userId: userDb?.userId,
+  });
   await user.roles.remove(role);
   return;
 };
@@ -94,6 +109,17 @@ export const addRoleToUser = async (
   if (!user) {
     throw new NotFoundError("user not found on Discord");
   }
+  const userDb = await User.findOne({
+    where: {
+      discordId: userDiscordId,
+    },
+  });
+  logInfo(`Adding role ${role.name} to user ${user.user.username}`, {
+    context: "Discord Service",
+    userDiscordId,
+    roleId: roleDiscordId,
+    userId: userDb?.userId,
+  });
   await user.roles.add(role);
   return;
 };
@@ -194,13 +220,17 @@ export const generateRoles = async () => {
   }
   roles.forEach((value) => {
     if (dbRoles.some((role) => role.discordId === value.id)) {
-      logInfo(`Role ${value.name} already exists in the database.`);
+      logInfo(`Role ${value.name} already exists in the database.`, {
+        context: "Discord Sync",
+      });
     } else {
       const category = categories.find(
         (category) => category.color === value.hexColor.toLowerCase(),
       );
       if (category) {
-        logInfo(`Creating role ${value.name} in the database.`);
+        logInfo(`Creating role ${value.name} in the database.`, {
+          context: "Discord Sync",
+        });
         Role.create({
           name: value.name,
           color: value.hexColor,
@@ -213,7 +243,7 @@ export const generateRoles = async () => {
 };
 
 export const generateUsers = async () => {
-  logInfo("Creating users...");
+  logInfo("Creating users...", { context: "Discord Sync" });
   await UsersHasRoles.destroy({ where: {} });
   const guild = await client.guilds.fetch(config.DISCORD_GUILD_ID);
   if (!guild) {
@@ -268,7 +298,7 @@ export const generateUsers = async () => {
     }
   }
 
-  logInfo("Users and roles updated successfully.");
+  logInfo("Users and roles updated successfully.", { context: "Discord Sync" });
 };
 
 export const setBotDefaultActivity = () => {
@@ -278,8 +308,12 @@ export const setBotDefaultActivity = () => {
 };
 
 export const synchronizeDiscordData = async () => {
-  logInfo("Synchronizing Discord data...");
+  logInfo("Synchronizing Discord data...", {
+    context: "Discord Sync",
+  });
   await generateRoles();
   await generateUsers();
-  logInfo("Discord data synchronized successfully.");
+  logInfo("Discord data synchronized successfully.", {
+    context: "Discord Sync",
+  });
 };

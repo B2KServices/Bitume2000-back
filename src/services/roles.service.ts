@@ -1,6 +1,7 @@
 import { Role, RoleCategory, User, UsersHasRoles } from "~/models";
 import { BadRequestError, NotFoundError } from "~/errors";
 import { addRoleToUser, removeRoleOnUser } from "~/services/discord.service";
+import { logInfo } from "~/middlewares";
 
 export const updateMyRoles = async (
   roleId: string,
@@ -27,12 +28,26 @@ export const updateMyRoles = async (
   if (isAdd) {
     if (userHasRole != null) throw new BadRequestError("role already gained");
     await addRoleToUser(user.discordId, role.discordId);
+    logInfo(`Added role ${role?.name} to user ${user?.username}`, {
+      context: "Update My Roles",
+      userId: user.userId,
+      roleId: role.roleId,
+      userDiscordId: user.discordId,
+      roleDiscordId: role.discordId,
+    });
     return await UsersHasRoles.create({
       userId,
       roleId,
     });
   } else {
     if (!userHasRole) throw new BadRequestError("role already remove");
+    logInfo(`Remove role ${role?.name} to user ${user?.username}`, {
+      context: "Update My Roles",
+      userId: user.userId,
+      roleId: role.roleId,
+      userDiscordId: user.discordId,
+      roleDiscordId: role.discordId,
+    });
     await removeRoleOnUser(user.discordId, role.discordId);
     await userHasRole.destroy();
   }

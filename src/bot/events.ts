@@ -55,7 +55,16 @@ export const registerEvents = () => {
     if (!message.channel || message.channel.type !== 0) return;
     if (message.thread) return;
     const content = message.content.trim();
-    logInfo(`[${message.channel.name}] ${message.author.username}: ${content}`);
+    logInfo(
+      `[${message.channel.name}] ${message.author.username}: ${content}`,
+      {
+        userId: message.author.id,
+        userName: message.author.username,
+        context: "MessageCreate",
+        channelId: message.channelId,
+        channelName: message.channel?.name || "unknown",
+      },
+    );
     if (message.channelId === config.DISCORD_CHAT_MC_ID) {
       await chatMinecraftEvent(message, content);
     }
@@ -67,7 +76,14 @@ export const registerEvents = () => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
     try {
       // 🧩 Slash Commands
+
       if (interaction.isChatInputCommand()) {
+        logInfo("slash command used: " + interaction.type, {
+          userId: interaction.user.id,
+          userName: interaction.user.username,
+          context: "Interaction slash command",
+          commandName: interaction.commandName,
+        });
         switch (interaction.commandName) {
           case "players":
             return playersCommand(interaction);
@@ -88,6 +104,13 @@ export const registerEvents = () => {
       // 🔘 Button Interactions
       if (interaction.isButton()) {
         const [action, userId] = interaction.customId.split(";");
+        logInfo(`button interaction used: ${interaction.customId}`, {
+          userId: interaction.user.id,
+          userName: interaction.user.username,
+          context: "Interaction button",
+          action,
+          targetUserId: userId,
+        });
 
         // 🔐 Auth & vote
         if (action === "approve_auth") {
@@ -103,6 +126,11 @@ export const registerEvents = () => {
       }
     } catch (err) {
       console.error("❌ Erreur lors de l'interaction :", err);
+      logError("❌ Error during interaction: " + err, {
+        userId: interaction.user.id,
+        userName: interaction.user.username,
+        context: "Interaction error",
+      });
       if (interaction.isRepliable()) {
         await interaction
           .reply({
