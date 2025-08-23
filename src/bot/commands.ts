@@ -59,6 +59,6 @@ export const registerCommands = async () => {
       context: "Commands",
     });
   } catch (error) {
-    logError(error);
+    logError(`Error registering commands: ${error}`, { context: "Commands" });
   }
 };
