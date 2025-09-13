@@ -26,7 +26,7 @@
     "@discordjs/voice": "^0.18.0",
     "@distube/ytdl": "^2.0.6",
     "@distube/ytpl": "github:distubejs/ytpl",
-    "axios": "^1.9.0",
+    "axios": "^1.12.0",
     "body-parser": "^2.2.0",
     "bufferutil": "^4.0.9",
     "cookie-parser": "^1.4.7",
