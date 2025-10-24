@@ -37,11 +37,13 @@ export const playMusicCommand = async (
   interaction: ChatInputCommandInteraction,
 ) => {
   await interaction.deferReply();
-  /* Temporary disable music feature TODO: fix that */
-  await interaction.editReply(
-    "⚠️ La fonctionnalité musicale est temporairement désactivée.",
-  );
-  return;
+  // eslint-disable-next-line no-constant-condition
+  if (true) {
+    await interaction.editReply(
+      "⚠️ La fonctionnalité musicale est temporairement désactivée.",
+    );
+    return;
+  }
   if (!interaction.guild) {
     await interaction.editReply(
       "⚠️ Cette commande ne peut être utilisée que dans un serveur.",
