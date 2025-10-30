@@ -27,6 +27,7 @@ interface Config {
   MEME_VOTE_COOLDOWN: number;
   LOKI_AUTH_KEY: string;
   LOKI_URL: string;
+  TRANSIT_API_KEY: string;
 }
 
 const config: Config = {
@@ -53,6 +54,7 @@ const config: Config = {
   MEME_VOTE_COOLDOWN: Number(process.env.MEME_VOTE_COOLDOWN) || 60, // in seconds
   LOKI_AUTH_KEY: process.env.LOKI_AUTH_KEY || "",
   LOKI_URL: process.env.LOKI_URL || "",
+  TRANSIT_API_KEY: process.env.TRANSIT_API_KEY || "",
 };
 
 export default config;
