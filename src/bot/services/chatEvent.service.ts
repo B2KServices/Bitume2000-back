@@ -1,6 +1,6 @@
-import { logError, logInfo } from "~/middlewares";
+import { logError, logInfo } from "@/src/middlewares";
 import axios from "axios";
-import config from "~/configs/config";
+import config from "@/src/configs/config";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -9,7 +9,7 @@ import {
   MessageCreateOptions,
   TextChannel,
 } from "discord.js";
-import { Meme, User } from "~/models";
+import { Meme, User } from "@/src/models";
 
 export const chatMinecraftEvent = async (
   message: Message,

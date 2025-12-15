@@ -5,9 +5,9 @@ import {
   InferCreationAttributes,
   Model,
 } from "sequelize";
-import { sequelize } from "~/loaders";
-import RoleCategory from "~/models/RoleCategory";
-import User from "~/models/User";
+import { sequelize } from "@/src/loaders";
+import RoleCategory from "@/src/models/RoleCategory";
+import User from "@/src/models/User";
 
 export interface RoleRequestModel
   extends Model<

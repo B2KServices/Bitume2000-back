@@ -1,7 +1,7 @@
 // socket.ts
 import { Server as HTTPServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
-import { logInfo } from "~/middlewares";
+import { logInfo } from "@/src/middlewares";
 
 let io: SocketIOServer;
 

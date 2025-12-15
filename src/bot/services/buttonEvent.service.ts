@@ -1,5 +1,5 @@
-import { Meme, User } from "~/models";
-import { logInfo } from "~/middlewares";
+import { Meme, User } from "@/src/models";
+import { logInfo } from "@/src/middlewares";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -8,12 +8,16 @@ import {
   MessageFlags,
   TextChannel,
 } from "discord.js";
-import { userInAuth } from "~/services/auth.service";
-import { MemeType, MemeVoteType } from "~/types";
-import config from "~/configs/config";
+import { userInAuth } from "@/src/services/auth.service";
+import { MemeType, MemeVoteType } from "@/src/types";
+import config from "@/src/configs/config";
 import dayjs from "dayjs";
-import { generateMemeButton } from "~/bot/services/chatEvent.service";
-import { getVoteForMeme, updateVoteQuery, voteQuery } from "~/models/querys";
+import { generateMemeButton } from "@/src/bot/services/chatEvent.service";
+import {
+  getVoteForMeme,
+  updateVoteQuery,
+  voteQuery,
+} from "@/src/models/querys";
 
 export const authButton = async (
   interaction: ButtonInteraction,

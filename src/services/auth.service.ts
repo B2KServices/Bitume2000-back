@@ -1,11 +1,11 @@
-import { User } from "~/models";
-import { UnauthorizedError } from "~/errors";
-import { sendPrivateMessage } from "~/services/discord.service";
+import { User } from "@/src/models";
+import { UnauthorizedError } from "@/src/errors";
+import { sendPrivateMessage } from "@/src/services/discord.service";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import { UserModel } from "~/models/User";
+import { UserModel } from "@/src/models/User";
 import jwt from "jsonwebtoken";
-import config from "~/configs/config";
-import { logInfo } from "~/middlewares";
+import config from "@/src/configs/config";
+import { logInfo } from "@/src/middlewares";
 
 export const userInAuth: { userId: string; approved: boolean }[] = [];
 export const generateJWT = (userId: string): string => {

@@ -1,17 +1,7 @@
-import {
-  ChatInputCommandInteraction,
-  GuildMember,
-  TextChannel,
-} from "discord.js";
+import { ChatInputCommandInteraction, TextChannel } from "discord.js";
 import axios from "axios";
-import config from "~/configs/config";
-import { joinVoiceChannel } from "@discordjs/voice";
-import {
-  addToQueue,
-  getTracksFromUrl,
-  sendMusicPanel,
-  updateMessages,
-} from "~/bot/services/musicPlayer.service";
+import config from "@/src/configs/config";
+import { logError } from "@/src/middlewares";
 
 export const playersCommand = async (
   interaction: ChatInputCommandInteraction,
@@ -26,7 +16,9 @@ export const playersCommand = async (
       `🧑‍💻 Il y a actuellement ${players} joueur${players > 1 ? "s" : ""} connecté${players > 1 ? "s" : ""}.`,
     );
   } catch (error) {
-    console.error("Error fetching players:", error);
+    logError("Error fetching players: " + JSON.stringify(error), {
+      context: "playersCommand",
+    });
     await interaction.reply(
       "⚠️ Impossible de récupérer le nombre de joueurs pour le moment.",
     );
@@ -120,7 +112,9 @@ export const clearCommand = async (
     await channel.bulkDelete(filtered);
     interaction.reply(`🗑️ ${filtered.length} message(s) supprimé(s).`);
   } catch (err) {
-    console.error("Error during message deletion:", err);
+    logError("Error during message deletion: " + JSON.stringify(err), {
+      context: "clearCommand",
+    });
     interaction.reply(
       "⚠️ Une erreur est survenue lors de la suppression des messages.",
     );

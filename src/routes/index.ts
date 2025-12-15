@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { runAsyncWrapper } from "~/middlewares/AsyncWrapper";
-import { getHealthCheck } from "~/controllers/healthCheck.controller";
+import { runAsyncWrapper } from "@/src/middlewares/AsyncWrapper";
+import { getHealthCheck } from "@/src/controllers/healthCheck.controller";
 import users from "./users";
 import auth from "./auth";
 import roles from "./roles";

@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
-import config from "~/configs/config";
+import config from "@/src/configs/config";
 import { NextFunction, Request, Response } from "express";
-import { UnauthorizedError } from "~/errors";
+import { UnauthorizedError } from "@/src/errors";
 
 function getJwtRequired(req: Request, res: Response, next: NextFunction): void {
   const token = req.cookies.authcookie;

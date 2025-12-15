@@ -1,8 +1,8 @@
 import winston, { createLogger, error, format, transports } from "winston";
 import dayjs from "dayjs";
 import LokiTransport from "winston-loki";
-import config from "~/configs/config";
-import { version } from "~~/package.json";
+import config from "@/src/configs/config";
+import { version } from "@/package.json";
 
 const { combine, printf, colorize } = format;
 

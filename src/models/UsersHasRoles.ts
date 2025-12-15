@@ -5,7 +5,7 @@ import {
   InferCreationAttributes,
   Model,
 } from "sequelize";
-import { sequelize } from "~/loaders";
+import { sequelize } from "@/src/loaders";
 
 export interface UsersHasRolesModel
   extends Model<

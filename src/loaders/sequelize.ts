@@ -1,5 +1,5 @@
 import { Options, Sequelize } from "sequelize";
-import config from "~/configs/config";
+import config from "@/src/configs/config";
 import pg from "pg";
 
 const createDatabase = () => {
@@ -21,7 +21,7 @@ const createDatabase = () => {
 
   const getInstance = () => {
     if (!instance) {
-      pg.types.setTypeParser(20, (value: any) => parseInt(value, 10));
+      pg.types.setTypeParser(20, (value) => parseInt(value, 10));
       pg.types.setTypeParser(
         1114,
         (str: string) => new Date(str.split(" ").join("T") + "Z"),

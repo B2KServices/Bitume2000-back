@@ -1,6 +1,6 @@
-import { sequelize } from "~/loaders";
+import { sequelize } from "@/src/loaders";
 import { QueryTypes } from "sequelize";
-import { MemeVoteType } from "~/types";
+import { MemeVoteType } from "@/src/types";
 import * as console from "node:console";
 
 export const voteQuery = async (

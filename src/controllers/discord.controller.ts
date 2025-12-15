@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { sendMessageToChannel } from "~/services/discord.service";
+import { sendMessageToChannel } from "@/src/services/discord.service";
 import { HttpStatusCode } from "axios";
 
 export const sendChat = async (req: Request, res: Response) => {

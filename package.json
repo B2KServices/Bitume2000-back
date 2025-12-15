@@ -13,9 +13,7 @@
     "format": "prettier --check 'src/**/*.{js,ts,jsx,tsx}'",
     "format:fix": "prettier --write 'src/**/*.{js,ts,jsx,tsx}'",
     "clean": "rm -rf dist",
-    "bump:patch": "npm version patch",
-    "bump:minor": "npm version minor",
-    "bump:major": "npm version major"
+    "bump": "read -p 'Version (major, minor, patch): ' v && npm version $v -m 'release: v%s' && read -p 'Confirmer le push ? (y/n): ' confirm && [[ $confirm == \"y\" ]] && git push --follow-tags"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +33,7 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "glob": "^13.0.0",
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "lint": "^1.1.2",
@@ -60,6 +59,7 @@
     "zlib-sync": "^0.1.10"
   },
   "devDependencies": {
+    "@eslint/js": "^9.28.0",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^6.1.1",
@@ -72,6 +72,7 @@
     "@types/yt-search": "^2.10.3",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
+    "eslint-plugin-prettier": "^5.5.4",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

@@ -1,7 +1,10 @@
-import { Role, RoleCategory, User, UsersHasRoles } from "~/models";
-import { BadRequestError, NotFoundError } from "~/errors";
-import { addRoleToUser, removeRoleOnUser } from "~/services/discord.service";
-import { logInfo } from "~/middlewares";
+import { Role, RoleCategory, User, UsersHasRoles } from "@/src/models";
+import { BadRequestError, NotFoundError } from "@/src/errors";
+import {
+  addRoleToUser,
+  removeRoleOnUser,
+} from "@/src/services/discord.service";
+import { logInfo } from "@/src/middlewares";
 
 export const updateMyRoles = async (
   roleId: string,

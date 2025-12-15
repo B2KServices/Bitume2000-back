@@ -1,6 +1,6 @@
 import { ErrorRequestHandler } from "express";
-import { CustomError } from "~/errors";
-import { logError } from "~/middlewares/Logger";
+import { CustomError } from "@/src/errors";
+import { logError } from "@/src/middlewares/Logger";
 
 const ErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   if (res) {

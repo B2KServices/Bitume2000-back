@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { runAsyncWrapper } from "~/middlewares";
-import { sendChat } from "~/controllers/discord.controller";
+import { runAsyncWrapper } from "@/src/middlewares";
+import { sendChat } from "@/src/controllers/discord.controller";
 
 const router: Router = Router({ mergeParams: true });
 

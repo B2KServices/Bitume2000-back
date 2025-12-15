@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as console from "node:console";
-import config from "~/configs/config";
+import config from "@/src/configs/config";
 
 export const getNextBus = async (req: Request, res: Response) => {
   const stopId = req.query.stopId;
