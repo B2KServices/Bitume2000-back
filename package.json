@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src -e js,ts,json --exec \"ts-node --transpile-only src/index.ts\"",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && tsc-alias",
     "start": "node dist/src/index.js",
     "start:log": "node dist/src/index.js >> logs/app.log 2>&1",
     "migrate": "sequelize-cli db:migrate",
@@ -50,6 +50,7 @@
     "sequelize": "^6.37.7",
     "sequelize-cli": "^6.6.2",
     "socket.io": "^4.8.1",
+    "tsc-alias": "^1.8.16",
     "umzug": "^3.8.2",
     "winston": "^3.17.0",
     "winston-loki": "^6.1.3",
