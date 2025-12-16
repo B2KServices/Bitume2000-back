@@ -95,7 +95,7 @@ export const memeVoteInteraction = async (
   }
 
   if (previousVote) {
-    logInfo("${voter.username} change his vote", {
+    logInfo(`${voter.username} change his vote`, {
       userId: voter.userId,
       userName: voter.username,
       context: "Meme Vote",
