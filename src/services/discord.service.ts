@@ -135,6 +135,9 @@ export const sendMessageToChannel = async (
   const editedContent = await Promise.all(
     splitedContent.map(async (word) => {
       if (!word.startsWith("@")) return word;
+      if (word.startsWith("@everyone") || word.startsWith("@here")) {
+        return '@ " + word.slice(1)';
+      }
 
       const possiblyUsername = word.slice(1);
 
