@@ -1,6 +1,6 @@
 import cron from "node-cron";
-import { synchronizeDiscordData } from "~/services/discord.service";
-import { logError, logInfo } from "~/middlewares/Logger";
+import { synchronizeDiscordData } from "@/src/services/discord.service";
+import { logError, logInfo } from "@/src/middlewares/Logger";
 
 export const midnightCron = () => {
   cron.schedule("0 0 * * *", async () => {

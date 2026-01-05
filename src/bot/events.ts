@@ -1,28 +1,27 @@
 import { ActivityType, Events, Interaction } from "discord.js";
 import { client } from "./client";
-import config from "~/configs/config";
-import { logError, logInfo } from "~/middlewares";
-import { Role, RoleCategory, User } from "~/models";
+import config from "@/src/configs/config";
+import { logError, logInfo } from "@/src/middlewares";
+import { Role, RoleCategory, User } from "@/src/models";
 import {
   generateRoleCategories,
   generateRoles,
   generateUsers,
-} from "~/services/discord.service";
+} from "@/src/services/discord.service";
 import {
   playersCommand,
   playMusicCommand,
   clearCommand,
-} from "~/bot/services/commands.service";
+} from "@/src/bot/services/commands.service";
 import {
   chatMinecraftEvent,
   createNewMeme,
-} from "~/bot/services/chatEvent.service";
+} from "@/src/bot/services/chatEvent.service";
 import {
   authButton,
   memeVoteInteraction,
-} from "~/bot/services/buttonEvent.service";
-import { version } from "~~/package.json";
-import { handleMusicButton } from "~/bot/services/musicPlayer.service";
+} from "@/src/bot/services/buttonEvent.service";
+import { version } from "@/package.json";
 import * as console from "node:console";
 
 export const registerEvents = () => {
@@ -75,8 +74,6 @@ export const registerEvents = () => {
 
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
     try {
-      // 🧩 Slash Commands
-
       if (interaction.isChatInputCommand()) {
         logInfo("slash command used: " + interaction.type, {
           userId: interaction.user.id,
@@ -101,7 +98,6 @@ export const registerEvents = () => {
         }
       }
 
-      // 🔘 Button Interactions
       if (interaction.isButton()) {
         const [action, userId] = interaction.customId.split(";");
         logInfo(`button interaction used: ${interaction.customId}`, {
@@ -120,9 +116,6 @@ export const registerEvents = () => {
         if (action === "meme_vote") {
           return memeVoteInteraction(interaction, userId);
         }
-
-        // 🎵 Music controls
-        return handleMusicButton(interaction);
       }
     } catch (err) {
       console.error("❌ Erreur lors de l'interaction :", err);

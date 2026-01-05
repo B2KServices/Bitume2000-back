@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { runAsyncWrapper } from "~/middlewares";
-import getJwtRequired from "~/middlewares/GetJwtRequired";
-import { getMyRoles, updateMyRoles } from "~/controllers/roles.controller";
+import { runAsyncWrapper } from "@/src/middlewares";
+import getJwtRequired from "@/src/middlewares/GetJwtRequired";
+import { getMyRoles, updateMyRoles } from "@/src/controllers/roles.controller";
 
 const router: Router = Router({ mergeParams: true });
 

@@ -1,4 +1,4 @@
-import { sequelize } from "~/loaders";
+import { sequelize } from "@/src/loaders";
 import {
   CreationOptional,
   DataTypes,
@@ -6,7 +6,7 @@ import {
   InferCreationAttributes,
   Model,
 } from "sequelize";
-import { RoleModel } from "~/models/Role";
+import { RoleModel } from "@/src/models/Role";
 
 export interface UserModel
   extends Model<

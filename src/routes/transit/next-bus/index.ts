@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { runAsyncWrapper } from "@/src/middlewares";
-import { sendChat } from "@/src/controllers/discord.controller";
+import { getNextBus } from "@/src/controllers/transit.controller";
 
 const router: Router = Router({ mergeParams: true });
 
-router.post("/", runAsyncWrapper(sendChat));
+router.get("/:stopId", runAsyncWrapper(getNextBus));
 
 export default router;

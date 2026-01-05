@@ -2,15 +2,15 @@ import "module-alias/register";
 import cors from "cors";
 import express, { Application } from "express";
 import allRoutes from "./routes";
-import { logDebug, logInfo } from "~/middlewares/Logger";
+import { logDebug, logInfo } from "@/src/middlewares/Logger";
 import { SequelizeStorage, Umzug } from "umzug";
-import { sequelize } from "~/loaders";
+import { sequelize } from "@/src/loaders";
 import * as console from "node:console";
-import errorHandler from "~/middlewares/ErrorHandler";
+import errorHandler from "@/src/middlewares/ErrorHandler";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import { schedule } from "~/middlewares/CronTab";
+import { schedule } from "@/src/middlewares/CronTab";
 
 declare module "express" {
   interface Request {

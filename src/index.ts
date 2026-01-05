@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
 import { createServer } from "http";
 import initApp from "./app";
-import { logInfo } from "~/middlewares";
-import config from "~/configs/config";
-import { startBot } from "~/bot";
-import { initSocket } from "~/loaders/socket";
+import { logError, logInfo } from "@/src/middlewares";
+import config from "@/src/configs/config";
+import { startBot } from "@/src/bot";
+import { initSocket } from "@/src/loaders/socket";
 
 dotenv.config();
 
@@ -22,7 +22,7 @@ const startServer = async () => {
     });
     await startBot();
   } catch (err) {
-    console.error(err);
+    logError(JSON.stringify(err), { context: "Started App" });
     process.exit(1);
   }
 };

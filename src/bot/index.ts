@@ -1,8 +1,8 @@
 import { client } from "./client";
 import { registerCommands } from "./commands";
 import { registerEvents } from "./events";
-import config from "~/configs/config";
-import { logInfo } from "~/middlewares";
+import config from "@/src/configs/config";
+import { logInfo } from "@/src/middlewares";
 
 export const startBot = async () => {
   registerEvents();

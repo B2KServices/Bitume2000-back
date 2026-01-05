@@ -1,7 +1,7 @@
-import { UnauthorizedError } from "~/errors";
+import { UnauthorizedError } from "@/src/errors";
 import { Request, Response } from "express";
 import { HttpStatusCode } from "axios";
-import * as rolesService from "~/services/roles.service";
+import * as rolesService from "@/src/services/roles.service";
 
 export const getCategories = async (req: Request, res: Response) => {
   const categories = await rolesService.getCategories();

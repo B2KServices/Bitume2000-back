@@ -1,5 +1,5 @@
-import { User } from "~/models";
-import { NotFoundError } from "~/errors";
+import { NotFoundError } from "@/src/errors";
+import { User } from "@/src/models";
 
 export const getMe = async (userId: string) => {
   const user = await User.findOne({ where: { userId: userId } });

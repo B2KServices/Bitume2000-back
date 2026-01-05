@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { runAsyncWrapper } from "~/middlewares";
-import { getCategories } from "~/controllers/roles.controller";
+import { runAsyncWrapper } from "@/src/middlewares";
+import { getCategories } from "@/src/controllers/roles.controller";
 
 const router: Router = Router({ mergeParams: true });
 

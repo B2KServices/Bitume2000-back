@@ -1,6 +1,6 @@
 import { REST, Routes } from "discord.js";
-import config from "~/configs/config";
-import { logError, logInfo } from "~/middlewares";
+import config from "@/src/configs/config";
+import { logError, logInfo } from "@/src/middlewares";
 
 const commands = [
   {

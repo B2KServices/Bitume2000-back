@@ -1,6 +1,6 @@
 import * as usersService from "../services/users.service";
 import { Request, Response } from "express";
-import { UnauthorizedError } from "~/errors";
+import { UnauthorizedError } from "@/src/errors";
 
 export const getUsers = async (req: Request, res: Response) => {
   const users = await usersService.getUsers();

@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { runAsyncWrapper } from "~/middlewares";
-import { getUsers } from "~/controllers/users.controller";
+import { runAsyncWrapper } from "@/src/middlewares";
+import { getUsers } from "@/src/controllers/users.controller";
 import me from "./me";
 
 const router: Router = Router({ mergeParams: true });

@@ -5,8 +5,8 @@ import {
   InferCreationAttributes,
   Model,
 } from "sequelize";
-import { sequelize } from "~/loaders";
-import { MemeType } from "~/types";
+import { sequelize } from "@/src/loaders";
+import { MemeType } from "@/src/types";
 
 export interface MemeModel
   extends Model<

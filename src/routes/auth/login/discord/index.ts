@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { runAsyncWrapper } from "~/middlewares";
-import { loginDiscord } from "~/controllers/authentication.controller";
+import { runAsyncWrapper } from "@/src/middlewares";
+import { loginDiscord } from "@/src/controllers/authentication.controller";
 
 const router: Router = Router({ mergeParams: true });
 
