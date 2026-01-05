@@ -1,4 +1,4 @@
-import winston, { createLogger, error, format, transports } from "winston";
+import winston, { createLogger, format, transports } from "winston";
 import dayjs from "dayjs";
 import LokiTransport from "winston-loki";
 import config from "@/src/configs/config";
@@ -46,9 +46,9 @@ export const logger = createLogger({
   exitOnError: false,
 });
 
-export const logError = (message: string, labels = {}) => {
-  lokiLogger.error(message, { labels });
-  logger.error(JSON.stringify(error));
+export const logError = (message: string | Error, labels = {}) => {
+  lokiLogger.error(message.toString(), { labels });
+  logger.error(message.toString());
 };
 
 export const logWarn = (message: string, labels = {}) => {

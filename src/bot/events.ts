@@ -74,8 +74,6 @@ export const registerEvents = () => {
 
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
     try {
-      // 🧩 Slash Commands
-
       if (interaction.isChatInputCommand()) {
         logInfo("slash command used: " + interaction.type, {
           userId: interaction.user.id,
@@ -100,7 +98,6 @@ export const registerEvents = () => {
         }
       }
 
-      // 🔘 Button Interactions
       if (interaction.isButton()) {
         const [action, userId] = interaction.customId.split(";");
         logInfo(`button interaction used: ${interaction.customId}`, {
