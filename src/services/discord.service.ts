@@ -165,7 +165,7 @@ export const sendMessageToChannel = async (
     }),
   );
 
-  const finalMessage = `${username ?? `\`\`${username}\`\` `}${editedContent.join(" ")}`;
+  const finalMessage = `${username ? `\`\`${username}\`\` ` : ""}${editedContent.join(" ")}`;
   logInfo(`Sending message to channel ${channel.name}: ${finalMessage}`, {
     context: "Discord Service",
     channelId,
