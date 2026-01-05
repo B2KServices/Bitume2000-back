@@ -7,13 +7,14 @@ export const playersCommand = async (
   interaction: ChatInputCommandInteraction,
 ) => {
   try {
-    const response = await axios.get<{ players: number }>(
+    const response = await axios.get<{ players: string }>(
       `${config.BITUMEMC_URL}/players`,
     );
-    const players = response.data.players;
+    const players = response.data.players.split(",");
 
     await interaction.reply(
-      `🧑‍💻 Il y a actuellement ${players} joueur${players > 1 ? "s" : ""} connecté${players > 1 ? "s" : ""}.`,
+      `🧑‍💻 Il y a actuellement ${players.length} joueur${players.length > 1 ? "s" : ""} connecté${players.length > 1 ? "s" : ""}.
+      \n- ${players.join("\n- ")}`,
     );
   } catch (error) {
     logError("Error fetching players: " + JSON.stringify(error), {
