@@ -120,6 +120,7 @@ export const getTextChannel = async (channelId: string) => {
 export const sendMessageToChannel = async (
   content: string,
   channelId: string,
+  username?: string,
 ) => {
   const guild = await getGuild();
   if (!guild) {
@@ -164,7 +165,7 @@ export const sendMessageToChannel = async (
     }),
   );
 
-  const finalMessage = editedContent.join(" ");
+  const finalMessage = `${username ?? `\`\`${username}\`\` `}${editedContent.join(" ")}`;
   logInfo(`Sending message to channel ${channel.name}: ${finalMessage}`, {
     context: "Discord Service",
     channelId,
