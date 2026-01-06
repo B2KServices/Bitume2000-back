@@ -344,7 +344,6 @@ export const generateUsers = async () => {
   }
 
   const members = await getAllMembers(guild);
-  console.log(members);
   if (!members || members.size === 0) {
     logError("No members found");
     return;
