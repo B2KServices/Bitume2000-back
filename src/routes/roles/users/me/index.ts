@@ -6,6 +6,6 @@ import { getMyRoles, updateMyRoles } from "@/src/controllers/roles.controller";
 const router: Router = Router({ mergeParams: true });
 
 router.get("/", getJwtRequired, runAsyncWrapper(getMyRoles));
-router.post("/", getJwtRequired, runAsyncWrapper(updateMyRoles));
+router.put("/", getJwtRequired, runAsyncWrapper(updateMyRoles));
 
 export default router;

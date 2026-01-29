@@ -3,6 +3,7 @@ import { logError, logInfo } from "@/src/middlewares";
 import {
   ActionRowBuilder,
   ActivityType,
+  Collection,
   Guild,
   GuildMember,
   Role as DiscordRole,
@@ -44,13 +45,14 @@ export const getMember = async (
 /**
  * Récupère tous les membres depuis le cache ou fetch si nécessaire
  */
-export const getAllMembers = async (guild: Guild) => {
-  if (guild.members.cache.size > 0) {
+export const getAllMembers = async (
+  guild: Guild,
+): Promise<Collection<string, GuildMember>> => {
+  if (guild.members.cache.size >= guild.memberCount) {
     return guild.members.cache;
   }
   return await guild.members.fetch();
 };
-
 /**
  * Récupère un rôle depuis le cache ou fetch si nécessaire
  */
