@@ -40,11 +40,14 @@ export const registerDiscord = async (
   while (i < 30) {
     const userAuth = userInAuth.find((u) => u.userId === userId);
     if (userAuth && userAuth.approved) {
-      userInAuth.filter((u) => u.userId !== userId);
+      const index = userInAuth.findIndex((u) => u.userId === userId);
+      if (index !== -1) userInAuth.splice(index, 1);
       return { user, token: generateJWT(userId) };
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
     i++;
   }
+  const index = userInAuth.findIndex((u) => u.userId === userId);
+  if (index !== -1) userInAuth.splice(index, 1);
   throw new UnauthorizedError();
 };
